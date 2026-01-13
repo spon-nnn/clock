@@ -16,6 +16,7 @@ struct BindingConfig {
     String boundUserId;   // 绑定的微信用户OpenID
     String boundNickname; // 绑定用户昵称
     unsigned long bindTime; // 绑定时间戳
+    int focusDuration = 25; // 专注时长（分钟），默认25
 };
 
 // 1. 日程项
@@ -121,6 +122,10 @@ public:
     int getTodayFocusMinutes();
     int getTotalFocusMinutes();
 
+    // 设置管理
+    void setFocusDuration(int minutes);
+    int getFocusDuration();
+
     // 测试接口
     bool runSelfTest();
 
@@ -128,24 +133,20 @@ private:
     BindingConfig bindingConfig;
     std::vector<ScheduleItem> schedules;
     std::vector<FocusRecord> focusRecords;
-    
+
     const char* BINDING_FILE = "/binding.json";
-    const char* SCHEDULE_FILE = "/schedules_v2.json";
-    const char* FOCUS_FILE = "/focus_v3.json"; // 升级文件版本以避免格式冲突
+    const char* SCHEDULE_FILE = "/schedule.json";
+    const char* FOCUS_FILE = "/focus.json";
 
     void loadBindingConfig();
     void saveBindingConfig();
-
     void loadSchedules();
     void saveSchedules(); 
-    
     void loadFocusRecords();
-    void saveFocusRecords(); 
+    void saveFocusRecords();
 
-    // 辅助：生成唯一ID
+    // 内部辅助函数
     String generateId();
-    
-    // 辅助：全量去重
     void deduplicateSchedules();
 };
 

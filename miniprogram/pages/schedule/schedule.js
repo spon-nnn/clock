@@ -41,6 +41,16 @@ Page({
   },
 
   onShow() {
+    // 返回该页时刷新数据（从编辑页回来也会触发）
+    if (!app.globalData.currentDevice || !app.globalData.currentDevice.ip) {
+      wx.showModal({
+        title: '未选择设备',
+        content: '当前设备IP缺失，请先回到首页选择设备。',
+        showCancel: false,
+        success: () => wx.switchTab({ url: '/pages/index/index' })
+      });
+      return;
+    }
     this.loadSchedules();
   },
 
@@ -57,7 +67,7 @@ Page({
 
   // 生成日历天数
   generateCalendarDays() {
-    const { calendarYear, calendarMonth, schedules } = this.data;
+    const { calendarYear, calendarMonth } = this.data;
     const firstDay = new Date(calendarYear, calendarMonth - 1, 1);
     const lastDay = new Date(calendarYear, calendarMonth, 0);
     const startDay = firstDay.getDay();
@@ -130,11 +140,12 @@ Page({
 
   // 加载日程数据
   async loadSchedules() {
-    const device = app.globalData.currentDevice;
-    if (!device) return;
+    // 兼容代码：不需要传 device 参数，直接用路径
+    // const device = app.globalData.currentDevice;
+    // if (!device) return;
 
     try {
-      const data = await app.requestDevice(device, '/api/data');
+      const data = await app.requestDeviceCompat(app.globalData.currentDevice, '/api/data');
       const schedules = data.schedule || [];
 
       // 排序
@@ -216,37 +227,23 @@ Page({
 
   // 显示添加弹窗
   showAddModal() {
+    // 改为独立页面编辑，彻底避开键盘顶飞 modal 的兼容问题
     const today = this.formatDate(new Date());
-    this.setData({
-      showModal: true,
-      editingItem: null,
-      formData: {
-        date: this.data.selectedDate || today,
-        startTime: '09:00',
-        endTime: '10:00',
-        content: '',
-        category: 'work'
-      }
+    const date = this.data.selectedDate || today;
+    wx.navigateTo({
+      url: `/pages/schedule_edit/schedule_edit?mode=add&date=${encodeURIComponent(date)}`
     });
   },
 
   // 编辑日程
   editSchedule(e) {
     const item = e.currentTarget.dataset.item;
-    this.setData({
-      showModal: true,
-      editingItem: item,
-      formData: {
-        date: item.date,
-        startTime: item.startTime,
-        endTime: item.endTime,
-        content: item.content,
-        category: item.category
-      }
+    wx.navigateTo({
+      url: `/pages/schedule_edit/schedule_edit?mode=edit&item=${encodeURIComponent(JSON.stringify(item))}`
     });
   },
 
-  // 隐藏弹窗
+  // 隐藏弹窗（保留，兼容旧UI，不再使用）
   hideModal() {
     this.setData({ showModal: false });
   },
@@ -277,6 +274,18 @@ Page({
   async submitSchedule() {
     const { formData, editingItem } = this.data;
 
+    // 针对中文显示的提示：如果输入包含中文，提醒用户
+    if (/[\u4e00-\u9fa5]/.test(formData.content.trim())) {
+        const res = await new Promise(resolve => {
+            wx.showModal({
+                title: '友情提示',
+                content: '设备屏幕可能仅支持显示英文/拼音，中文可能会显示为空白或乱码。确认继续吗？',
+                success: resolve
+            });
+        });
+        if (!res.confirm) return;
+    }
+
     if (!formData.content.trim()) {
       wx.showToast({ title: '请输入内容', icon: 'none' });
       return;
@@ -284,8 +293,7 @@ Page({
 
     this.setData({ submitting: true });
 
-    const device = app.globalData.currentDevice;
-
+    // 同样使用兼容方法
     try {
       const payload = {
         action: 'add',
@@ -293,17 +301,27 @@ Page({
           date: formData.date,
           startTime: formData.startTime,
           endTime: formData.endTime,
-          content: formData.content,
+          content: formData.content, // 如果设备不支持中文，这里发过去也是乱码
           category: formData.category,
           isDone: false
         }
       };
 
-      await app.requestDevice(device, '/api/schedule', 'POST', payload);
+      // 如果是编辑，先删除旧的再添加新的（因为设备端可能没有update接口或逻辑简单）
+      if (editingItem && editingItem.id) {
+          await app.requestDeviceCompat(app.globalData.currentDevice, '/api/schedule', 'POST', {
+              action: 'del',
+              id: editingItem.id
+          });
+      }
+
+      await app.requestDeviceCompat(app.globalData.currentDevice, '/api/schedule', 'POST', payload);
 
       wx.showToast({ title: '保存成功', icon: 'success' });
       this.setData({ showModal: false, submitting: false });
-      this.loadSchedules();
+
+      // 延迟加载，给设备写入一点时间
+      setTimeout(() => this.loadSchedules(), 500);
 
     } catch (err) {
       console.error('Submit failed:', err);
@@ -322,14 +340,13 @@ Page({
       confirmColor: '#ef4444',
       success: async (res) => {
         if (res.confirm) {
-          const device = app.globalData.currentDevice;
           try {
-            await app.requestDevice(device, '/api/schedule', 'POST', {
+            await app.requestDeviceCompat(app.globalData.currentDevice, '/api/schedule', 'POST', {
               action: 'del',
               id: id
             });
             wx.showToast({ title: '已删除', icon: 'success' });
-            this.loadSchedules();
+            setTimeout(() => this.loadSchedules(), 500);
           } catch (err) {
             wx.showToast({ title: '删除失败', icon: 'error' });
           }
@@ -338,4 +355,3 @@ Page({
     });
   }
 });
-

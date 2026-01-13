@@ -8,277 +8,100 @@
 }
 
 .title {
-  font-size: 48rpx;
+  font-size: 28px;
   font-weight: 700;
-  color: #ffffff;
+  margin-bottom: 5px;
 }
 
-.add-btn {
-  width: 72rpx;
-  height: 72rpx;
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-  border-radius: 50%;
+.subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.device-list {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.add-icon {
-  font-size: 48rpx;
-  color: #ffffff;
-  font-weight: 300;
-}
-
-/* 设备卡片 */
 .device-card {
-  background: linear-gradient(135deg, #1a2a4a 0%, #0d1a30 100%);
-  border-radius: 24rpx;
-  padding: 30rpx;
-  margin-bottom: 24rpx;
-  display: flex;
-  align-items: center;
-  border: 2rpx solid transparent;
-  transition: all 0.3s ease;
-}
-
-.device-card.active {
-  border-color: #3b82f6;
-  box-shadow: 0 0 20rpx rgba(59, 130, 246, 0.3);
-}
-
-.device-icon {
-  position: relative;
-  width: 100rpx;
-  height: 100rpx;
-  margin-right: 24rpx;
-}
-
-.icon-img {
-  width: 100%;
-  height: 100%;
-  border-radius: 20rpx;
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.status-dot {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 24rpx;
-  height: 24rpx;
-  border-radius: 50%;
-  border: 4rpx solid #0d1a30;
-}
-
-.status-dot.online {
-  background: #22c55e;
-}
-
-.status-dot.offline {
-  background: #6b7280;
-}
-
-.device-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.device-name {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #ffffff;
-  margin-bottom: 8rpx;
-}
-
-.device-id {
-  font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.5);
-  margin-bottom: 4rpx;
-}
-
-.device-status {
-  font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.device-actions {
-  display: flex;
-  align-items: center;
-}
-
-.action-btn {
-  width: 64rpx;
-  height: 64rpx;
-  background: rgba(59, 130, 246, 0.2);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.action-icon {
-  font-size: 28rpx;
-  color: #3b82f6;
-}
-
-/* 空状态 */
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 100rpx 40rpx;
-}
-
-.empty-img {
-  width: 300rpx;
-  height: 300rpx;
-  margin-bottom: 40rpx;
-  opacity: 0.5;
-}
-
-.empty-title {
-  font-size: 36rpx;
-  color: #ffffff;
-  margin-bottom: 16rpx;
-}
-
-.empty-desc {
-  font-size: 28rpx;
-  color: rgba(255, 255, 255, 0.5);
-  text-align: center;
-}
-
-/* 天气卡片 */
-.weather-card {
-  background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
-}
-
-.weather-header {
-  margin-bottom: 20rpx;
-}
-
-.city-name {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #ffffff;
-}
-
-.update-time {
-  font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.6);
-  display: block;
-  margin-top: 4rpx;
-}
-
-.weather-icon {
-  font-size: 64rpx;
-}
-
-.weather-main {
-  margin-bottom: 30rpx;
-}
-
-.temperature {
-  font-size: 96rpx;
-  font-weight: 700;
-  color: #ffffff;
-}
-
-.weather-desc {
-  font-size: 32rpx;
-  color: rgba(255, 255, 255, 0.8);
-  margin-left: 16rpx;
-}
-
-.weather-details {
-  padding-top: 20rpx;
-  border-top: 1rpx solid rgba(255, 255, 255, 0.2);
-}
-
-.detail-item {
-  display: flex;
-  align-items: center;
-}
-
-.detail-icon {
-  font-size: 28rpx;
-  margin-right: 8rpx;
-}
-
-.detail-value {
-  font-size: 28rpx;
-  color: rgba(255, 255, 255, 0.9);
-}
-
-/* 日程预览 */
-.card-header {
-  margin-bottom: 20rpx;
-}
-
-.more-link {
-  font-size: 26rpx;
-  color: #3b82f6;
-}
-
-.schedule-item {
-  display: flex;
-  align-items: flex-start;
-  padding: 16rpx 0;
-  border-bottom: 1rpx solid rgba(255, 255, 255, 0.1);
-}
-
-.schedule-item:last-child {
-  border-bottom: none;
-}
-
-.schedule-time {
-  font-size: 28rpx;
-  color: #3b82f6;
-  font-weight: 600;
-  width: 100rpx;
-}
-
-.schedule-content {
-  flex: 1;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  transition: transform 0.1s;
 }
 
-.schedule-title {
-  font-size: 28rpx;
-  color: #ffffff;
+.device-card:active {
+  transform: scale(0.98);
 }
 
-/* 专注统计卡片 */
-.focus-stats {
-  padding: 20rpx 0;
+.device-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
 }
 
-.stat-item {
-  flex: 1;
+.device-icon {
+  width: 48px;
+  height: 48px;
+  background: rgba(59, 130, 246, 0.1);
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  color: var(--accent);
+}
+
+.device-name {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.device-id {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.device-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--success);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 8px var(--success);
+}
+
+/* Add Card */
+.add-card {
+  border: 2px dashed rgba(255, 255, 255, 0.1);
+  background: transparent;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  padding: 30px;
+  gap: 10px;
+  cursor: pointer;
 }
 
-.stat-value {
-  font-size: 56rpx;
-  font-weight: 700;
+.add-icon {
+  font-size: 32px;
+  color: var(--text-secondary);
+  font-weight: 300;
 }
 
-.stat-label {
-  font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.6);
-  margin-top: 8rpx;
-}
-
-.stat-divider {
-  width: 2rpx;
-  height: 80rpx;
-  background: rgba(255, 255, 255, 0.2);
+.add-text {
+  color: var(--text-secondary);
+  font-size: 14px;
 }
 
 /* 操作菜单 */
@@ -286,35 +109,44 @@
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 100;
   display: flex;
-  align-items: flex-end;
-  z-index: 999;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 
 .action-sheet-content {
-  width: 100%;
-  background: #1a2a4a;
-  border-radius: 32rpx 32rpx 0 0;
-  padding: 20rpx 0 60rpx;
+  background: var(--card-bg);
+  border-radius: 20px 20px 0 0;
+  padding: 20px;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
 }
 
 .action-item {
   display: flex;
   align-items: center;
-  padding: 30rpx 40rpx;
-  font-size: 32rpx;
-  color: #ffffff;
+  padding: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 16px;
+  gap: 15px;
 }
 
-.action-item .action-icon {
-  font-size: 36rpx;
-  margin-right: 20rpx;
+.action-item:last-child {
+  border-bottom: none;
+}
+
+.action-icon {
+  font-size: 20px;
 }
 
 .action-item.danger {
-  color: #ef4444;
+  color: var(--danger);
 }
-

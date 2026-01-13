@@ -74,7 +74,7 @@ Page({
 
     try {
       const device = { ip: data.ip, deviceId: data.did };
-      const res = await app.requestDevice(device, '/api/device/info');
+      const res = await app.requestDeviceCompat(device, '/api/device/info');
 
       console.log('Device info:', res);
 
@@ -107,6 +107,46 @@ Page({
   async bindDevice() {
     if (this.data.binding) return;
 
+    // --- 新增：微信授权登录逻辑 (增加仪式感 + 获取真实昵称) ---
+    // 检查是否已经有真实昵称，如果没有，弹窗请求授权
+    if (!app.globalData.userInfo || app.globalData.userInfo.nickName === '微信用户') {
+        try {
+            const userRes = await wx.getUserProfile({
+                desc: '绑定设备需要验证您的身份'
+            });
+            // 用户同意授权，保存信息
+            app.globalData.userInfo = userRes.userInfo;
+            wx.setStorageSync('nickname', userRes.userInfo.nickName);
+            console.log('获取到真实用户信息:', userRes.userInfo);
+        } catch (e) {
+            // 用户如果拒绝，提示一下但允许继续（用匿名身份）
+            // 或者您可以选择 return 强制要求登录，这里为了演示顺畅选择继续
+        }
+    }
+
+    // --- 新增：确保 OpenID 一定存在 (解决串口显示 (null) 的问题) ---
+    if (!app.globalData.openId) {
+        wx.showLoading({ title: '正在登录...' });
+        // 简单的轮询等待，最多等3秒
+        for(let i=0; i<30; i++) {
+            if(app.globalData.openId) break;
+            await new Promise(r => setTimeout(r, 100));
+        }
+        wx.hideLoading();
+
+        // 如果还不行，强制重试登录
+        if(!app.globalData.openId) {
+            app.initUserIdentity(); // 再试一次
+            wx.showModal({
+                title: '登录慢',
+                content: '网络正在建立安全连接，请再点一次绑定按钮',
+                showCancel: false
+            });
+            return;
+        }
+    }
+    // -----------------------------------------------------------
+
     this.setData({ binding: true });
 
     const { scanResult } = this.data;
@@ -116,7 +156,7 @@ Page({
     try {
       const device = { ip: scanResult.ip, deviceId: scanResult.did };
 
-      const res = await app.requestDevice(device, '/api/device/bind', 'POST', {
+      const res = await app.requestDeviceCompat(device, '/api/device/bind', 'POST', {
         token: scanResult.token,
         userId: openId,
         nickname: userInfo?.nickName || '微信用户'
@@ -142,7 +182,14 @@ Page({
         wx.showToast({ title: '绑定成功', icon: 'success' });
 
       } else {
-        throw new Error(res.error || '绑定失败');
+        // 小程序IDE会对 throw 提示告警，这里改为直接弹窗并 return
+        wx.showModal({
+          title: '绑定失败',
+          content: res.error || '绑定失败，请重试',
+          showCancel: false
+        });
+        this.setData({ binding: false });
+        return;
       }
 
     } catch (err) {
@@ -189,17 +236,17 @@ Page({
 
     try {
       const device = { ip: ip };
-      const res = await app.requestDevice(device, '/api/device/info');
+      const res = await app.requestDeviceCompat(device, '/api/device/info');
 
       wx.hideLoading();
 
-      // 构造类似扫码的结果
-      const scanResult = {
-        type: 'spaceclock',
-        did: res.deviceId,
-        ip: ip,
-        token: '' // 手动连接需要设备显示token
-      };
+      // 构造类似扫码的结果（用于后续扩展/展示）
+      // const scanResult = {
+      //   type: 'spaceclock',
+      //   did: res.deviceId,
+      //   ip: ip,
+      //   token: '' // 手动连接需要设备显示token
+      // };
 
       if (res.isBound) {
         // 设备已绑定，检查是否是当前用户
@@ -251,4 +298,3 @@ Page({
     wx.navigateBack();
   }
 });
-

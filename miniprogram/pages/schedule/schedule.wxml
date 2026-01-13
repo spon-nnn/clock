@@ -132,54 +132,74 @@
       <view class="modal-close" bindtap="hideModal">×</view>
     </view>
 
-    <view class="form-group">
-      <text class="form-label">日期</text>
-      <picker mode="date" value="{{formData.date}}" bindchange="onDateChange">
-        <view class="picker-value">{{formData.date || '请选择日期'}}</view>
-      </picker>
-    </view>
-
-    <view class="form-row">
-      <view class="form-group half">
-        <text class="form-label">开始时间</text>
-        <picker mode="time" value="{{formData.startTime}}" bindchange="onStartTimeChange">
-          <view class="picker-value">{{formData.startTime || '09:00'}}</view>
+    <!-- 可滚动区域：表单内容都放这里 -->
+    <scroll-view class="modal-body" scroll-y="true" enhanced="true" show-scrollbar="false">
+      <view class="form-group">
+        <text class="form-label">日期</text>
+        <picker mode="date" value="{{formData.date}}" bindchange="onDateChange">
+          <view class="picker-value">{{formData.date || '请选择日期'}}</view>
         </picker>
       </view>
-      <view class="form-group half">
-        <text class="form-label">结束时间</text>
-        <picker mode="time" value="{{formData.endTime}}" bindchange="onEndTimeChange">
-          <view class="picker-value">{{formData.endTime || '10:00'}}</view>
-        </picker>
-      </view>
-    </view>
 
-    <view class="form-group">
-      <text class="form-label">内容</text>
-      <input class="form-input" placeholder="请输入日程内容" value="{{formData.content}}" bindinput="onContentInput"/>
-    </view>
-
-    <view class="form-group">
-      <text class="form-label">分类</text>
-      <view class="category-options">
-        <view class="category-option {{formData.category === 'work' ? 'selected' : ''}}"
-              bindtap="selectCategory" data-category="work">
-          <text>💼 工作</text>
+      <view class="form-row">
+        <view class="form-group half">
+          <text class="form-label">开始时间</text>
+          <picker mode="time" value="{{formData.startTime}}" bindchange="onStartTimeChange">
+            <view class="picker-value">{{formData.startTime || '09:00'}}</view>
+          </picker>
         </view>
-        <view class="category-option {{formData.category === 'life' ? 'selected' : ''}}"
-              bindtap="selectCategory" data-category="life">
-          <text>🏠 生活</text>
-        </view>
-        <view class="category-option {{formData.category === 'study' ? 'selected' : ''}}"
-              bindtap="selectCategory" data-category="study">
-          <text>📚 学习</text>
+        <view class="form-group half">
+          <text class="form-label">结束时间</text>
+          <picker mode="time" value="{{formData.endTime}}" bindchange="onEndTimeChange">
+            <view class="picker-value">{{formData.endTime || '10:00'}}</view>
+          </picker>
         </view>
       </view>
-    </view>
 
-    <button class="btn-primary submit-btn" bindtap="submitSchedule" loading="{{submitting}}">
-      {{submitting ? '保存中...' : '保存'}}
-    </button>
+      <view class="form-group">
+        <text class="form-label">内容</text>
+        <textarea class="form-textarea"
+                  placeholder="请输入日程内容"
+                  placeholder-class="ph-color"
+                  value="{{formData.content}}"
+                  bindinput="onContentInput"
+                  auto-height="true"
+                  fixed="true"
+                  cursor-spacing="20"
+                  maxlength="100"
+                  confirm-type="done"
+                  show-confirm-bar="true"
+                  hold-keyboard="true" />
+      </view>
+
+      <view class="form-group">
+        <text class="form-label">分类</text>
+        <view class="category-options">
+          <view class="category-option {{formData.category === 'work' ? 'selected' : ''}}"
+                bindtap="selectCategory" data-category="work">
+            <text>💼 工作</text>
+          </view>
+          <view class="category-option {{formData.category === 'life' ? 'selected' : ''}}"
+                bindtap="selectCategory" data-category="life">
+            <text>🏠 生活</text>
+          </view>
+          <view class="category-option {{formData.category === 'study' ? 'selected' : ''}}"
+                bindtap="selectCategory" data-category="study">
+            <text>📚 学习</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 给底部按钮预留空间，避免被遮挡 -->
+      <view style="height: 140rpx;"></view>
+    </scroll-view>
+
+    <!-- 固定底部按钮条：永远可见 -->
+    <view class="modal-footer" catchtap="">
+      <button class="btn btn-primary submit-btn" bindtap="submitSchedule" loading="{{submitting}}">
+        {{submitting ? '保存中...' : '保存'}}
+      </button>
+    </view>
   </view>
 </view>
 

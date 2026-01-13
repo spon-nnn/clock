@@ -1,0 +1,59 @@
+<view class="container">
+  <view class="card">
+    <view class="header">
+      <text class="title">{{mode === 'edit' ? '编辑日程' : '添加日程'}}</text>
+      <text class="sub">请填写日程内容并保存到设备</text>
+    </view>
+
+    <view class="form-group">
+      <text class="label">日期</text>
+      <picker mode="date" value="formData.date" bindchange="onDateChange">
+        <view class="field">{{formData.date || '请选择日期'}}</view>
+      </picker>
+    </view>
+
+    <view class="row">
+      <view class="form-group half">
+        <text class="label">开始时间</text>
+        <picker mode="time" value="formData.startTime" bindchange="onStartTimeChange">
+          <view class="field">{{formData.startTime}}</view>
+        </picker>
+      </view>
+      <view class="form-group half">
+        <text class="label">结束时间</text>
+        <picker mode="time" value="formData.endTime" bindchange="onEndTimeChange">
+          <view class="field">{{formData.endTime}}</view>
+        </picker>
+      </view>
+    </view>
+
+    <view class="form-group">
+      <text class="label">内容</text>
+      <textarea class="textarea"
+                placeholder="请输入日程内容（建议英文）"
+                placeholder-class="ph"
+                value="{{formData.content}}"
+                bindinput="onContentInput"
+                maxlength="100"
+                auto-height="true"
+                cursor-spacing="20"
+                confirm-type="done"
+                show-confirm-bar="true" />
+      <text class="hint">提示：设备屏幕字库可能不支持显示中文，建议使用英文或拼音；网页端可正常显示中文。</text>
+    </view>
+
+    <view class="form-group">
+      <text class="label">分类</text>
+      <view class="cats">
+        <view class="cat {{formData.category==='work'?'on':''}}" bindtap="selectCategory" data-category="work">💼 工作</view>
+        <view class="cat {{formData.category==='life'?'on':''}}" bindtap="selectCategory" data-category="life">🏠 生活</view>
+        <view class="cat {{formData.category==='study'?'on':''}}" bindtap="selectCategory" data-category="study">📚 学习</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="footer">
+    <button class="btn btn-primary" bindtap="submit" loading="{{submitting}}">{{submitting?'保存中...':'保存'}}</button>
+    <button class="btn btn-ghost" bindtap="cancel">取消</button>
+  </view>
+</view>

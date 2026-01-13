@@ -1,332 +1,171 @@
-// pages/pomodoro/pomodoro.js - 番茄钟逻辑
+// pages/pomodoro/pomodoro.js
 const app = getApp();
 
 Page({
   data: {
     activeTab: 'timer',
-
-    // 计时器状态
     isFocusing: false,
-    focusDuration: 25, // 分钟
-    remainingSeconds: 25 * 60,
-    timerDisplay: '25:00',
+    remaining: '25:00',
+    progress: 0,
+    durations: [1, 5, 10, 15, 20, 25, 30, 45, 60, 90, 120],
+    durationIndex: 5,
+    todayFocus: 0,
+    totalFocus: 0,
 
-    // 任务相关
-    currentTask: null,
-    taskList: [],
-    showTaskModal: false,
-    quickTaskName: '',
-
-    // 统计数据
-    todayFocusTime: '0分钟',
-    weekFocusTime: '0小时0分',
-    monthFocusTime: '0小时0分',
+    // Stats data
+    weekFocusTime: 0,
+    monthFocusTime: 0,
     totalPomodoros: 0,
     streakDays: 0,
-    categoryStats: {
-      work: 45,
-      study: 30,
-      life: 25
-    },
+    categoryStats: { work: 0, study: 0, life: 0 },
 
-    // 日程相关
-    currentDateStr: '',
-    todaySchedules: []
-  },
+    // Schedule data
+    todaySchedules: [],
 
-  timer: null,
-
-  onLoad() {
-    this.updateDateStr();
-    this.loadData();
+    timer: null
   },
 
   onShow() {
-    this.loadData();
+    this.fetchData();
+    this.startLocalTimer(); // Keep UI updated
   },
 
-  onUnload() {
-    this.stopTimer();
+  onHide() {
+    this.stopLocalTimer();
   },
 
-  // 更新日期显示
-  updateDateStr() {
-    const now = new Date();
-    const month = now.getMonth() + 1;
-    const day = now.getDate();
-    const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
-    this.setData({
-      currentDateStr: `${month}月${day}日 星期${weekDays[now.getDay()]}`
-    });
-  },
-
-  // 加载数据
-  async loadData() {
-    const device = app.globalData.currentDevice;
-    if (!device) return;
-
-    try {
-      const data = await app.requestDevice(device, '/api/data');
-
-      // 处理日程
-      const today = this.getToday();
-      const todaySchedules = (data.schedule || []).filter(s => s.date === today);
-
-      // 处理统计
-      const todayMinutes = data.pomodoro?.today || 0;
-      const totalMinutes = data.pomodoro?.total || 0;
-
-      this.setData({
-        todaySchedules,
-        taskList: todaySchedules,
-        todayFocusTime: this.formatMinutes(todayMinutes),
-        weekFocusTime: this.formatHoursMinutes(todayMinutes * 3), // 模拟数据
-        monthFocusTime: this.formatHoursMinutes(totalMinutes),
-        totalPomodoros: Math.floor(totalMinutes / 25)
-      });
-
-    } catch (err) {
-      console.error('Load data failed:', err);
-    }
-  },
-
-  getToday() {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-  },
-
-  formatMinutes(mins) {
-    if (mins < 60) return `${mins}分钟`;
-    const hours = Math.floor(mins / 60);
-    const minutes = mins % 60;
-    return `${hours}小时${minutes}分钟`;
-  },
-
-  formatHoursMinutes(mins) {
-    const hours = Math.floor(mins / 60);
-    const minutes = mins % 60;
-    return `${hours}小时${minutes}分`;
-  },
-
-  // 切换标签
   switchTab(e) {
-    const tab = e.currentTarget.dataset.tab;
-    this.setData({ activeTab: tab });
+    this.setData({ activeTab: e.currentTarget.dataset.tab });
   },
 
-  // 设置时长
-  setDuration(e) {
-    if (this.data.isFocusing) return;
+  async fetchData() {
+    try {
+      // 兼容调用：使用 requestDeviceCompat 防止参数错误
+      const data = await app.requestDeviceCompat(app.globalData.currentDevice, '/api/data');
 
-    const duration = parseInt(e.currentTarget.dataset.duration);
-    this.setData({
-      focusDuration: duration,
-      remainingSeconds: duration * 60,
-      timerDisplay: `${String(duration).padStart(2, '0')}:00`
-    });
-  },
-
-  // 切换计时器
-  toggleTimer() {
-    if (this.data.isFocusing) {
-      this.pauseTimer();
-    } else {
-      this.startTimer();
-    }
-  },
-
-  // 开始计时
-  startTimer() {
-    this.setData({ isFocusing: true });
-
-    this.timer = setInterval(() => {
-      let remaining = this.data.remainingSeconds - 1;
-
-      if (remaining <= 0) {
-        this.completeTimer();
-        return;
-      }
-
-      const mins = Math.floor(remaining / 60);
-      const secs = remaining % 60;
+      // Update Settings & Stats
+      const duration = data.settings.focusDuration || 25;
+      const dIndex = this.data.durations.indexOf(duration);
 
       this.setData({
-        remainingSeconds: remaining,
-        timerDisplay: `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
+        durationIndex: dIndex >= 0 ? dIndex : 5,
+        todayFocus: data.pomodoro.today,
+        totalFocus: data.pomodoro.total,
+        // TODO: Calculate advanced stats from data.focusRecords if needed
+        weekFocusTime: data.pomodoro.today, // Placeholder
+        monthFocusTime: data.pomodoro.total, // Placeholder
+        totalPomodoros: data.focusRecords.length
       });
+
+      // Update Schedule
+      // Filter today's schedule
+      const todayStr = new Date().toISOString().split('T')[0]; // Simple YYYY-MM-DD
+      // Note: Device stores date as string, check format match
+      // Device format: YYYY-MM-DD
+      const todayTasks = (data.schedule || []).filter(task => task.date === todayStr);
+      this.setData({ todaySchedules: todayTasks });
+
+    } catch (e) {
+      console.error('Fetch data failed', e);
+    }
+  },
+
+  async onDurationChange(e) {
+    const idx = e.detail.value;
+    const duration = this.data.durations[idx];
+
+    this.setData({ durationIndex: idx });
+
+    try {
+      await app.requestDeviceCompat(app.globalData.currentDevice, '/api/settings', 'POST', { focusDuration: duration });
+      wx.showToast({ title: '时长已更新', icon: 'success' });
+      this.updateTimerDisplay(duration * 60); // Reset display
+    } catch (e) {
+      wx.showToast({ title: '设置失败', icon: 'none' });
+    }
+  },
+
+  async toggleFocus() {
+    const isFocusing = !this.data.isFocusing;
+    const cmd = isFocusing ? 'start_focus' : 'stop_focus';
+
+    try {
+      await app.requestDeviceCompat(app.globalData.currentDevice, '/api/control', 'POST', { command: cmd });
+
+      this.setData({ isFocusing });
+      if (isFocusing) {
+        wx.showToast({ title: '开始专注', icon: 'none' });
+        // Reset local timer logic
+        this.startTime = Date.now();
+        this.targetDuration = this.data.durations[this.data.durationIndex] * 60 * 1000;
+      } else {
+        wx.showToast({ title: '专注结束', icon: 'none' });
+        this.fetchData(); // Refresh stats
+      }
+    } catch (e) {
+      wx.showToast({ title: '指令发送失败', icon: 'none' });
+    }
+  },
+
+  // Local Timer UI Update (Runs every second)
+  startLocalTimer() {
+    if (this.data.timer) return;
+    this.data.timer = setInterval(() => {
+      // If focusing, calculate remaining time
+      if (this.data.isFocusing) {
+        const elapsed = Date.now() - this.startTime;
+        let remainingMs = this.targetDuration - elapsed;
+
+        if (remainingMs <= 0) {
+          remainingMs = 0;
+          this.setData({ isFocusing: false });
+          this.fetchData();
+
+          // 增强结束提醒：多次震动 + 提示音（如果系统支持）
+          const vibrate = () => {
+             wx.vibrateLong();
+             // wx.showToast({title: '专注完成！', icon: 'none'});
+          };
+          vibrate();
+          setTimeout(vibrate, 1000);
+          setTimeout(vibrate, 2000);
+
+          wx.showModal({
+              title: '专注完成',
+              content: '恭喜你完成了一次专注！休息一下吧。',
+              showCancel: false
+          });
+        }
+
+        this.updateTimerDisplay(Math.ceil(remainingMs / 1000));
+
+        // Progress
+        const progress = Math.min(100, (elapsed / this.targetDuration) * 100);
+        this.setData({ progress });
+
+      } else {
+        // Not focusing, just show setting duration
+        const duration = this.data.durations[this.data.durationIndex];
+        this.updateTimerDisplay(duration * 60);
+        this.setData({ progress: 0 });
+      }
     }, 1000);
-
-    // 同步到设备
-    this.syncToDevice('start');
   },
 
-  // 暂停计时
-  pauseTimer() {
-    this.stopTimer();
-    this.setData({ isFocusing: false });
-  },
-
-  // 停止计时器
-  stopTimer() {
-    if (this.timer) {
-      clearInterval(this.timer);
-      this.timer = null;
+  stopLocalTimer() {
+    if (this.data.timer) {
+      clearInterval(this.data.timer);
+      this.data.timer = null;
     }
   },
 
-  // 完成计时
-  completeTimer() {
-    this.stopTimer();
-
-    wx.vibrateLong();
-    wx.showModal({
-      title: '专注完成！',
-      content: `恭喜完成 ${this.data.focusDuration} 分钟专注`,
-      showCancel: false
-    });
-
-    this.setData({
-      isFocusing: false,
-      remainingSeconds: this.data.focusDuration * 60,
-      timerDisplay: `${String(this.data.focusDuration).padStart(2, '0')}:00`
-    });
-
-    // 同步到设备
-    this.syncToDevice('complete');
-    this.loadData();
+  updateTimerDisplay(seconds) {
+    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const s = (seconds % 60).toString().padStart(2, '0');
+    this.setData({ remaining: `${m}:${s}` });
   },
 
-  // 重置计时器
-  resetTimer() {
-    this.stopTimer();
-    const duration = this.data.focusDuration;
-    this.setData({
-      isFocusing: false,
-      remainingSeconds: duration * 60,
-      timerDisplay: `${String(duration).padStart(2, '0')}:00`
-    });
-  },
-
-  // 跳过计时器
-  skipTimer() {
-    wx.showModal({
-      title: '确认跳过',
-      content: '确定要跳过当前专注吗？这次专注将不会被记录。',
-      success: (res) => {
-        if (res.confirm) {
-          this.resetTimer();
-        }
-      }
-    });
-  },
-
-  // 同步到设备
-  async syncToDevice(action) {
-    const device = app.globalData.currentDevice;
-    if (!device) return;
-
-    try {
-      // 这里可以添加向设备同步专注状态的逻辑
-      console.log('Sync to device:', action);
-    } catch (err) {
-      console.error('Sync failed:', err);
-    }
-  },
-
-  // 显示任务选择
-  selectTask() {
-    this.setData({ showTaskModal: true });
-  },
-
-  hideTaskModal() {
-    this.setData({ showTaskModal: false });
-  },
-
-  // 选择任务
-  selectTaskItem(e) {
-    const task = e.currentTarget.dataset.task;
-    this.setData({
-      currentTask: task,
-      showTaskModal: false
-    });
-  },
-
-  // 切换任务完成状态
-  toggleTask() {
-    if (!this.data.currentTask) return;
-    const task = this.data.currentTask;
-    task.isDone = !task.isDone;
-    this.setData({ currentTask: task });
-  },
-
-  // 快速添加任务
-  onQuickInput(e) {
-    this.setData({ quickTaskName: e.detail.value });
-  },
-
-  async quickAddTask() {
-    const name = this.data.quickTaskName.trim();
-    if (!name) {
-      wx.showToast({ title: '请输入任务名称', icon: 'none' });
-      return;
-    }
-
-    const device = app.globalData.currentDevice;
-    if (!device) return;
-
-    try {
-      const today = this.getToday();
-      await app.requestDevice(device, '/api/schedule', 'POST', {
-        action: 'add',
-        item: {
-          date: today,
-          startTime: '09:00',
-          endTime: '10:00',
-          content: name,
-          category: 'work',
-          isDone: false
-        }
-      });
-
-      wx.showToast({ title: '添加成功', icon: 'success' });
-      this.setData({ quickTaskName: '', showTaskModal: false });
-      this.loadData();
-
-    } catch (err) {
-      wx.showToast({ title: '添加失败', icon: 'error' });
-    }
-  },
-
-  // 跳转日程页面
   goToSchedule() {
-    wx.navigateTo({
-      url: '/pages/schedule/schedule'
-    });
-  },
-
-  // 删除日程
-  deleteSchedule(e) {
-    const id = e.currentTarget.dataset.id;
-    wx.showModal({
-      title: '确认删除',
-      content: '确定要删除这条日程吗？',
-      confirmColor: '#ef4444',
-      success: async (res) => {
-        if (res.confirm) {
-          const device = app.globalData.currentDevice;
-          try {
-            await app.requestDevice(device, '/api/schedule', 'POST', {
-              action: 'del',
-              id: id
-            });
-            wx.showToast({ title: '已删除', icon: 'success' });
-            this.loadData();
-          } catch (err) {
-            wx.showToast({ title: '删除失败', icon: 'error' });
-          }
-        }
-      }
-    });
+      wx.navigateTo({ url: '/pages/schedule/schedule' });
   }
 });
-

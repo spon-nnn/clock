@@ -23,70 +23,37 @@
 
     <!-- 计时器圆环 -->
     <view class="timer-ring-container">
-      <view class="timer-ring">
-        <canvas canvas-id="timerCanvas" class="timer-canvas"></canvas>
-        <view class="timer-content">
-          <text class="timer-value">{{timerDisplay}}</text>
-          <text class="timer-status">{{isFocusing ? '专注中' : '准备开始'}}</text>
-        </view>
+      <view class="timer-ring white-ring"></view>
+      <view class="timer-ring progress-ring" style="background: conic-gradient(var(--accent) {{progress}}%, transparent 0);"></view>
+      <view class="timer-center">
+        <view class="time-left">{{remaining}}</view>
+        <view class="status-text">{{isFocusing ? '专注中...' : '准备开始'}}</view>
       </view>
     </view>
 
-    <!-- 时长选择 -->
-    <view class="duration-options">
-      <view class="duration-btn {{focusDuration === 25 ? 'active' : ''}}"
-            bindtap="setDuration" data-duration="25">
-        25分钟
+    <!-- 时长选择器 -->
+    <picker mode="selector" range="{{durations}}" value="{{durationIndex}}" bindchange="onDurationChange" disabled="{{isFocusing}}">
+      <view class="duration-picker card">
+        <view class="picker-label">专注时长</view>
+        <view class="picker-value">{{durations[durationIndex]}} 分钟 ></view>
       </view>
-      <view class="duration-btn {{focusDuration === 5 ? 'active' : ''}}"
-            bindtap="setDuration" data-duration="5">
-        5分钟
-      </view>
-      <view class="duration-btn {{focusDuration === 15 ? 'active' : ''}}"
-            bindtap="setDuration" data-duration="15">
-        15分钟
-      </view>
-    </view>
+    </picker>
 
-    <!-- 控制按钮 -->
-    <view class="control-buttons">
-      <view class="control-btn reset" bindtap="resetTimer">
-        <text class="btn-icon">↻</text>
-      </view>
-      <view class="control-btn {{isFocusing ? 'pause' : 'play'}}" bindtap="toggleTimer">
-        <text class="btn-icon">{{isFocusing ? '⏸' : '▶'}}</text>
-      </view>
-      <view class="control-btn skip" bindtap="skipTimer">
-        <text class="btn-icon">⏭</text>
-      </view>
-    </view>
+    <!-- 操作按钮 -->
+    <button class="btn btn-primary btn-lg {{isFocusing ? 'btn-danger' : ''}}" bindtap="toggleFocus">
+      {{isFocusing ? '停止专注' : '开始专注'}}
+    </button>
 
-    <!-- 当前专注任务 -->
-    <view class="current-task card">
-      <view class="card-header">
-        <text class="card-title">当前专注任务</text>
-        <view class="add-task-btn" bindtap="selectTask">
-          <text>+</text>
-        </view>
+    <!-- 今日统计 -->
+    <view class="stats-card card">
+      <view class="stats-item">
+        <view class="stats-num">{{todayFocus}}</view>
+        <view class="stats-label">今日专注(分钟)</view>
       </view>
-
-      <view class="task-item" wx:if="{{currentTask}}">
-        <view class="task-checkbox {{currentTask.isDone ? 'checked' : ''}}"
-              bindtap="toggleTask">
-          <text wx:if="{{currentTask.isDone}}">✓</text>
-        </view>
-        <view class="task-info">
-          <text class="task-name">{{currentTask.content}}</text>
-          <text class="task-estimate">预计需要 {{currentTask.pomodoros || 1}} 个番茄钟</text>
-        </view>
-      </view>
-      <view class="no-task" wx:else bindtap="selectTask">
-        <text>点击选择或添加任务</text>
-      </view>
-
-      <view class="today-focus-summary">
-        <text class="summary-text">今日已专注</text>
-        <text class="summary-value">{{todayFocusTime}}</text>
+      <view class="divider"></view>
+      <view class="stats-item">
+        <view class="stats-num">{{totalFocus}}</view>
+        <view class="stats-label">累计专注(分钟)</view>
       </view>
     </view>
   </view>

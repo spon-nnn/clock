@@ -1,0 +1,21 @@
+.container{padding:20px;min-height:100vh;box-sizing:border-box}
+.card{background:#1a2a4a;border-radius:16px;padding:18px;border:1px solid rgba(255,255,255,.06)}
+.header{margin-bottom:16px}
+.title{font-size:18px;font-weight:700;color:#fff}
+.sub{display:block;margin-top:6px;color:rgba(255,255,255,.45);font-size:12px}
+.form-group{margin-bottom:14px}
+.label{display:block;color:rgba(255,255,255,.6);font-size:13px;margin-bottom:8px}
+.field,.textarea{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:14px;color:#fff}
+.row{display:flex;gap:12px}
+.half{flex:1}
+.textarea{min-height:72px;width:100%;box-sizing:border-box}
+.ph{color:rgba(255,255,255,.3)}
+.hint{display:block;margin-top:8px;color:rgba(255,255,255,.4);font-size:12px}
+.cats{display:flex;gap:10px}
+.cat{flex:1;text-align:center;padding:12px 10px;border-radius:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.86)}
+.cat.on{border-color:#3b82f6;background:rgba(59,130,246,.2)}
+.footer{margin-top:14px;display:flex;gap:12px;padding-bottom:calc(env(safe-area-inset-bottom) + 10px)}
+.btn{flex:1;border-radius:12px;padding:12px 0;font-weight:700}
+.btn-primary{background:#3b82f6;color:#fff}
+.btn-ghost{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.15)}
+

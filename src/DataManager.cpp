@@ -145,6 +145,12 @@ void DataManager::loadBindingConfig() {
     bindingConfig.boundUserId = doc["boundUserId"].as<String>();
     bindingConfig.boundNickname = doc["boundNickname"].as<String>();
     bindingConfig.bindTime = doc["bindTime"].as<unsigned long>();
+    // 加载专注时长配置，默认25
+    if (doc.containsKey("focusDuration")) {
+        bindingConfig.focusDuration = doc["focusDuration"].as<int>();
+    } else {
+        bindingConfig.focusDuration = 25;
+    }
 
     Serial.printf("Binding config loaded. Bound: %s\n", bindingConfig.isBound ? "Yes" : "No");
 }
@@ -163,6 +169,7 @@ void DataManager::saveBindingConfig() {
     doc["boundUserId"] = bindingConfig.boundUserId;
     doc["boundNickname"] = bindingConfig.boundNickname;
     doc["bindTime"] = bindingConfig.bindTime;
+    doc["focusDuration"] = bindingConfig.focusDuration; // 保存设置
 
     serializeJson(doc, f);
     f.close();
@@ -176,6 +183,7 @@ String DataManager::generateId() {
 
 // 辅助排序函数
 bool compareSchedules(const ScheduleItem& a, const ScheduleItem& b) {
+
     if (a.date != b.date) {
         return a.date < b.date; // 按日期升序
     }
@@ -494,3 +502,17 @@ bool DataManager::runSelfTest() {
     Serial.println("[TEST] PASSED: All CRUD operations verified.");
     return true;
 }
+
+// ==================== 设置管理 ====================
+
+void DataManager::setFocusDuration(int minutes) {
+    if (minutes < 1) minutes = 1;
+    if (minutes > 120) minutes = 120; // 限制在1-120分钟
+    bindingConfig.focusDuration = minutes;
+    saveBindingConfig(); // 立即保存
+}
+
+int DataManager::getFocusDuration() {
+    return bindingConfig.focusDuration > 0 ? bindingConfig.focusDuration : 25;
+}
+

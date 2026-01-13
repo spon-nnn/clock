@@ -4,6 +4,7 @@
     "pages/scan/scan",
     "pages/device/device",
     "pages/schedule/schedule",
+    "pages/schedule_edit/schedule_edit",
     "pages/pomodoro/pomodoro",
     "pages/stats/stats"
   ],
@@ -43,4 +44,3 @@
   "sitemapLocation": "sitemap.json",
   "style": "v2"
 }
-

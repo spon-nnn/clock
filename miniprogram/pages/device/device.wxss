@@ -63,9 +63,9 @@
 /* 天气卡片 */
 .weather-card {
   position: relative;
-  background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #3b82f6 100%);
-  border-radius: 32rpx;
-  padding: 40rpx;
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+  text-align: center;
+  padding: 40rpx 20rpx;
   margin-bottom: 30rpx;
   overflow: hidden;
   min-height: 400rpx;
@@ -180,19 +180,19 @@
   bottom: 30rpx;
   left: 40rpx;
   z-index: 3;
-}
-
-.time-value {
-  font-size: 48rpx;
+  font-size: 64px;
   font-weight: 700;
-  color: #ffffff;
+  line-height: 1;
+  margin-bottom: 10px;
+  color: var(--text-primary);
+  font-family: monospace; /* 模拟数码管字体 */
 }
 
-.date-value {
+.date-display {
   display: block;
-  font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.7);
-  margin-top: 4rpx;
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
 }
 
 /* 快捷功能 */
@@ -291,3 +291,79 @@
   color: rgba(255, 255, 255, 0.3);
 }
 
+/* Weather Row */
+.weather-row {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+}
+
+.weather-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.weather-icon {
+  font-size: 24px;
+}
+
+/* Grid Menu */
+.section-title {
+  margin: 20px 0 10px;
+  font-size: 16px;
+  color: var(--text-secondary);
+  padding-left: 5px;
+}
+
+.grid-menu {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+.grid-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  gap: 10px;
+  margin-bottom: 0; /* Override .card margin for grid */
+}
+
+.grid-icon {
+  font-size: 32px;
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.color-blue { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+.color-orange { background: rgba(249, 115, 22, 0.1); color: #f97316; }
+.color-green { background: rgba(34, 197, 94, 0.1); color: #22c55e; }
+.color-purple { background: rgba(168, 85, 247, 0.1); color: #a855f7; }
+
+.grid-text {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Info Card */
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.label { color: var(--text-secondary); font-size: 14px; }
+.value { font-size: 14px; }

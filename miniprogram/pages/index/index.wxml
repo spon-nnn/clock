@@ -2,115 +2,31 @@
 <view class="container">
   <!-- 顶部标题 -->
   <view class="header">
-    <text class="title">我的设备</text>
-    <view class="add-btn" bindtap="goToScan">
-      <text class="add-icon">+</text>
-    </view>
+    <view class="title">我的设备</view>
+    <view class="subtitle">管理您的智能天气时钟</view>
   </view>
 
   <!-- 设备列表 -->
-  <view class="device-list" wx:if="{{devices.length > 0}}">
-    <view class="device-card {{currentDevice && currentDevice.deviceId === item.deviceId ? 'active' : ''}}"
-          wx:for="{{devices}}"
-          wx:key="deviceId"
-          bindtap="selectDevice"
-          bindlongpress="showDeviceMenu"
-          data-device="{{item}}">
-
-      <!-- 设备图标和状态 -->
-      <view class="device-icon">
-        <image src="/images/clock-icon.png" mode="aspectFit" class="icon-img"></image>
-        <view class="status-dot {{item.online ? 'online' : 'offline'}}"></view>
-      </view>
-
-      <!-- 设备信息 -->
-      <view class="device-info">
-        <text class="device-name">{{item.name || '太空人时钟'}}</text>
-        <text class="device-id">{{item.deviceId}}</text>
-        <text class="device-status">{{item.online ? '在线' : '离线'}}</text>
-      </view>
-
-      <!-- 快捷操作 -->
-      <view class="device-actions">
-        <view class="action-btn" catchtap="goToDevice" data-device="{{item}}">
-          <text class="action-icon">▶</text>
+  <view class="device-list">
+    <block wx:for="{{devices}}" wx:key="deviceId">
+      <view class="card device-card" bindtap="selectDevice" data-id="{{item.deviceId}}" bindlongpress="showActionSheet">
+        <view class="device-info">
+          <view class="device-icon">🚀</view>
+          <view class="device-text">
+            <view class="device-name">{{item.nickname || '未命名设备'}}</view>
+            <view class="device-id">ID: {{item.deviceId}}</view>
+          </view>
+        </view>
+        <view class="device-status">
+          <view class="status-dot online"></view>
+          <text>在线</text>
         </view>
       </view>
-    </view>
-  </view>
+    </block>
 
-  <!-- 空状态 -->
-  <view class="empty-state" wx:else>
-    <image src="/images/empty-device.png" mode="aspectFit" class="empty-img"></image>
-    <text class="empty-title">暂无设备</text>
-    <text class="empty-desc">点击右上角 + 号扫码添加设备</text>
-    <button class="btn-primary mt-40" bindtap="goToScan">添加设备</button>
-  </view>
-
-  <!-- 当前选中设备的天气卡片 -->
-  <view class="weather-card card" wx:if="{{currentDevice && currentDevice.online && weatherData}}">
-    <view class="weather-header flex-between">
-      <view>
-        <text class="city-name">{{weatherData.city || '未知城市'}}</text>
-        <text class="update-time">更新于 {{weatherData.updateTime || '--:--'}}</text>
-      </view>
-      <view class="weather-icon">🌤️</view>
-    </view>
-
-    <view class="weather-main">
-      <text class="temperature">{{weatherData.temp || '--'}}°</text>
-      <text class="weather-desc">{{weatherData.weather || '未知'}}</text>
-    </view>
-
-    <view class="weather-details flex-between">
-      <view class="detail-item">
-        <text class="detail-icon">💧</text>
-        <text class="detail-value">{{weatherData.humidity || '--'}}%</text>
-      </view>
-      <view class="detail-item">
-        <text class="detail-icon">🌬️</text>
-        <text class="detail-value">{{weatherData.wind || '--'}}</text>
-      </view>
-      <view class="detail-item">
-        <text class="detail-icon">🌡️</text>
-        <text class="detail-value">{{weatherData.aqi || '--'}}</text>
-      </view>
-    </view>
-  </view>
-
-  <!-- 今日日程预览 -->
-  <view class="schedule-preview card" wx:if="{{currentDevice && todaySchedules.length > 0}}">
-    <view class="card-header flex-between">
-      <text class="card-title">今日日程</text>
-      <text class="more-link" bindtap="goToSchedule">查看全部 ></text>
-    </view>
-
-    <view class="schedule-item" wx:for="{{todaySchedules}}" wx:key="id" wx:if="{{index < 3}}">
-      <view class="schedule-time">{{item.startTime}}</view>
-      <view class="schedule-content">
-        <text class="schedule-title">{{item.content}}</text>
-        <text class="tag tag-{{item.category}}">{{categoryNames[item.category]}}</text>
-      </view>
-    </view>
-  </view>
-
-  <!-- 今日专注统计 -->
-  <view class="focus-card card" wx:if="{{currentDevice}}">
-    <view class="card-header flex-between">
-      <text class="card-title">今日专注</text>
-      <text class="more-link" bindtap="goToStats">详细统计 ></text>
-    </view>
-
-    <view class="focus-stats flex-between">
-      <view class="stat-item">
-        <text class="stat-value text-blue">{{focusStats.today || 0}}</text>
-        <text class="stat-label">分钟</text>
-      </view>
-      <view class="stat-divider"></view>
-      <view class="stat-item">
-        <text class="stat-value text-green">{{focusStats.sessions || 0}}</text>
-        <text class="stat-label">番茄钟</text>
-      </view>
+    <view class="card add-card" bindtap="goToScan">
+      <view class="add-icon">+</view>
+      <view class="add-text">添加新设备</view>
     </view>
   </view>
 </view>
@@ -132,4 +48,3 @@
     </view>
   </view>
 </view>
-

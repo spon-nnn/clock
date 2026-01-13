@@ -327,8 +327,31 @@
   width: 100%;
   background: #1a2a4a;
   border-radius: 32rpx 32rpx 0 0;
-  padding: 40rpx;
-  max-height: 80vh;
+  padding: 32rpx;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 1001;
+
+  /* 关键：固定高度 + flex 布局 */
+  height: 78vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* 不让内容把 footer 挤走 */
+}
+
+.modal-body {
+  flex: 1;
+  overflow: hidden;
+}
+
+.modal-footer {
+  padding-top: 16rpx;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 16rpx);
+  background: #1a2a4a;
+}
+
+.ph-color {
+  color: rgba(255, 255, 255, 0.3);
 }
 
 .modal-header {
@@ -379,6 +402,18 @@
   font-size: 28rpx;
 }
 
+.form-textarea {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2rpx solid rgba(255, 255, 255, 0.2);
+  border-radius: 12rpx;
+  padding: 24rpx;
+  color: #ffffff;
+  font-size: 28rpx;
+  min-height: 120rpx;
+  box-sizing: border-box;
+  width: 100%;
+}
+
 .category-options {
   display: flex;
   gap: 16rpx;
@@ -405,4 +440,3 @@
   margin-top: 20rpx;
   width: 100%;
 }
-

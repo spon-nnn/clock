@@ -73,9 +73,6 @@ const unsigned long FACTORY_RESET_HOLD = 10000; // 长按10秒恢复出厂
 // 番茄钟数据 (部分保留用于运行时状态，持久化数据由 DataManager 接管)
 bool isFocusing = false;
 unsigned long focusStartTime = 0;
-const unsigned long FOCUS_DURATION = 25 * 60 * 1000; // 25分钟
-// unsigned long todayFocusMinutes = 0;
-// unsigned long totalFocusMinutes = 0;
 
 // 天气数据
 String scrollText[6];
@@ -552,11 +549,59 @@ void setupWebserver() {
     request->send(200, "application/json", response);
   });
 
+  // 处理控制指令 (开始/停止番茄钟)
+  server.on("/api/control", HTTP_POST, [](AsyncWebServerRequest *request){}, NULL,
+    [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total){
+    DynamicJsonDocument doc(256);
+    deserializeJson(doc, data);
+    String cmd = doc["command"];
+
+    if (cmd == "start_focus") {
+        if (!isFocusing) {
+            isFocusing = true;
+            focusStartTime = millis();
+            currentPage = PAGE_POMODORO; // 自动跳到番茄钟页
+            pageChanged = true;
+        }
+    } else if (cmd == "stop_focus") {
+        if (isFocusing) {
+            isFocusing = false;
+            pageChanged = true;
+            // 可选：提前结束是否保存记录？暂且不保存
+        }
+    }
+
+    request->send(200, "application/json", "{\"success\":true}");
+  });
+
+  // 处理设置 (专注时长)
+  server.on("/api/settings", HTTP_POST, [](AsyncWebServerRequest *request){}, NULL,
+    [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total){
+    DynamicJsonDocument doc(256);
+    deserializeJson(doc, data);
+
+    if (doc.containsKey("focusDuration")) {
+        int duration = doc["focusDuration"].as<int>();
+        DB.setFocusDuration(duration);
+    }
+
+    DynamicJsonDocument resp(128);
+    resp["success"] = true;
+    resp["focusDuration"] = DB.getFocusDuration();
+
+    String response;
+    serializeJson(resp, response);
+    request->send(200, "application/json", response);
+  });
+
   // ==================== 原有数据API ====================
 
   server.on("/api/data", HTTP_GET, [](AsyncWebServerRequest *request){
     DynamicJsonDocument doc(8192); // 增加缓冲区大小
     
+    // 0. 全局设置
+    doc["settings"]["focusDuration"] = DB.getFocusDuration();
+
     // 1. 日程列表
     JsonArray scheduleArr = doc.createNestedArray("schedule");
     for(const auto& item : DB.getSchedules()) {
@@ -784,18 +829,21 @@ void renderPomodoroPage() {
   }
 
   if (millis() - lastUpdate > 1000 || pageChanged) { // 页面切换回来时立即更新
-    unsigned long remaining = FOCUS_DURATION;
+    // 计算当前目标专注时长 (ms)
+    unsigned long targetDuration = DB.getFocusDuration() * 60 * 1000;
+    unsigned long remaining = targetDuration;
+
     if (isFocusing) {
       unsigned long elapsed = millis() - focusStartTime;
-      if (elapsed >= FOCUS_DURATION) {
+      if (elapsed >= targetDuration) {
         // ... (保持原有完成逻辑)
         isFocusing = false;
         
         // 记录专注时间到数据库
         FocusRecord rec;
-        rec.startTime = now() - (FOCUS_DURATION/1000); // 倒推开始时间
+        rec.startTime = now() - (targetDuration/1000); // 倒推开始时间
         rec.endTime = now();                           // 记录结束时间
-        rec.duration = 25;
+        rec.duration = DB.getFocusDuration();          // 使用设置的时长
         rec.interruptions = 0;
         rec.note = ""; // 默认为空
         DB.addFocusRecord(rec);

@@ -5,13 +5,13 @@ Page({
   data: {
     period: 'week',
     periodStats: {
-      hours: 12,
-      minutes: 30
+      hours: 0,
+      minutes: 0
     },
-    totalPomodoros: 36,
-    streakDays: 12,
-    activeDays: 15,
-    avgDaily: 45,
+    totalPomodoros: 0,
+    streakDays: 0,
+    activeDays: 0,
+    avgDaily: 0,
 
     categories: [
       { name: '工作', percent: 45, color: '#3b82f6' },
@@ -38,24 +38,57 @@ Page({
   },
 
   async loadStats() {
+    // 使用兼容方法
     const device = app.globalData.currentDevice;
     if (!device) return;
 
     try {
-      const data = await app.requestDevice(device, '/api/data');
+      const data = await app.requestDeviceCompat(device, '/api/data');
 
       // 处理统计数据
-      const todayMinutes = data.pomodoro?.today || 0;
       const totalMinutes = data.pomodoro?.total || 0;
       const focusRecords = data.focusRecords || [];
 
-      // 计算本周/本月数据 (简化计算)
-      const weekMinutes = todayMinutes * 5; // 模拟
-      const monthMinutes = totalMinutes;
+      // 基于真实记录计算
+      const now = new Date();
+      const oneDay = 24 * 60 * 60 * 1000;
+
+      let weekMins = 0;
+      let monthMins = 0;
+      let activeDates = new Set();
+
+      // 遍历所有记录进行统计
+      focusRecords.forEach(rec => {
+          const recDate = new Date(rec.startTime * 1000);
+          const diffTime = now - recDate; // 毫秒差
+          const diffDays = diffTime / oneDay;
+
+          if (diffDays <= 7 && diffDays >= 0) weekMins += rec.duration;
+          if (diffDays <= 30 && diffDays >= 0) monthMins += rec.duration;
+
+          const dateStr = `${recDate.getFullYear()}-${recDate.getMonth()+1}-${recDate.getDate()}`;
+          activeDates.add(dateStr);
+      });
+
+      // 连续天数计算
+      let streak = 0;
+      for (let i = 0; i < 60; i++) { // 此时回溯60天
+          const d = new Date(now.getTime() - i * oneDay);
+          const dateStr = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+
+          if (activeDates.has(dateStr)) {
+              streak++;
+          } else {
+              // 特殊处理：如果是今天且今天也没记录，不视为中断，继续检查昨天
+              // 如果是昨天及更早没记录，则中断
+              if (i === 0) continue;
+              break;
+          }
+      }
 
       const periodStats = this.data.period === 'week'
-        ? { hours: Math.floor(weekMinutes / 60), minutes: weekMinutes % 60 }
-        : { hours: Math.floor(monthMinutes / 60), minutes: monthMinutes % 60 };
+        ? { hours: Math.floor(weekMins / 60), minutes: weekMins % 60 }
+        : { hours: Math.floor(monthMins / 60), minutes: monthMins % 60 };
 
       // 处理最近记录
       const recentRecords = focusRecords.slice(-10).reverse().map(rec => {
@@ -74,8 +107,10 @@ Page({
 
       this.setData({
         periodStats,
-        totalPomodoros: Math.floor(totalMinutes / 25),
-        avgDaily: Math.floor(totalMinutes / 7),
+        totalPomodoros: focusRecords.length,
+        streakDays: streak,
+        activeDays: activeDates.size,
+        avgDaily: activeDates.size > 0 ? Math.floor(totalMinutes / activeDates.size) : 0,
         recentRecords,
         device: { ...device, online: true }
       });
@@ -107,11 +142,9 @@ Page({
       confirmColor: '#ef4444',
       success: (res) => {
         if (res.confirm) {
-          // 这里可以添加清空记录的API调用
           wx.showToast({ title: '功能开发中', icon: 'none' });
         }
       }
     });
   }
 });
-
