@@ -1,0 +1,185 @@
+<!--pages/schedule/schedule.wxml - 日程管理页面-->
+<view class="container">
+  <!-- 顶部标签页 -->
+  <view class="tabs">
+    <view class="tab {{activeTab === 'list' ? 'active' : ''}}" bindtap="switchTab" data-tab="list">
+      <text>日程列表</text>
+    </view>
+    <view class="tab {{activeTab === 'calendar' ? 'active' : ''}}" bindtap="switchTab" data-tab="calendar">
+      <text>日历视图</text>
+    </view>
+  </view>
+
+  <!-- 日程列表视图 -->
+  <view class="list-view" wx:if="{{activeTab === 'list'}}">
+    <!-- 今日日程 -->
+    <view class="schedule-section">
+      <view class="section-header">
+        <text class="section-title">今日日程</text>
+        <view class="add-btn" bindtap="showAddModal">
+          <text>+ 添加提醒</text>
+        </view>
+      </view>
+
+      <view class="schedule-list" wx:if="{{todaySchedules.length > 0}}">
+        <view class="schedule-item" wx:for="{{todaySchedules}}" wx:key="id">
+          <view class="schedule-time-bar">
+            <text class="time-text">{{item.startTime}}</text>
+            <view class="time-line"></view>
+          </view>
+          <view class="schedule-content-card">
+            <view class="schedule-main">
+              <text class="schedule-title">{{item.content}}</text>
+              <text class="schedule-period">{{getPeriod(item.startTime)}}</text>
+            </view>
+            <view class="schedule-actions">
+              <view class="action-btn edit" catchtap="editSchedule" data-item="{{item}}">
+                <text>✏️</text>
+              </view>
+              <view class="action-btn delete" catchtap="deleteSchedule" data-id="{{item.id}}">
+                <text>🗑️</text>
+              </view>
+            </view>
+            <view class="tag tag-{{item.category}}">{{categoryNames[item.category]}}</view>
+          </view>
+        </view>
+      </view>
+
+      <view class="empty-section" wx:else>
+        <text class="empty-text">今日暂无日程安排</text>
+      </view>
+    </view>
+
+    <!-- 未来日程 -->
+    <view class="schedule-section" wx:if="{{futureSchedules.length > 0}}">
+      <view class="section-header">
+        <text class="section-title">未来日程</text>
+      </view>
+
+      <view class="schedule-list">
+        <view class="schedule-item future" wx:for="{{futureSchedules}}" wx:key="id">
+          <view class="schedule-date-badge">
+            <text class="date-day">{{item.date.substring(8, 10)}}</text>
+            <text class="date-month">{{item.date.substring(5, 7)}}月</text>
+          </view>
+          <view class="schedule-content-card">
+            <view class="schedule-main">
+              <text class="schedule-title">{{item.content}}</text>
+              <text class="schedule-time-range">{{item.startTime}} - {{item.endTime}}</text>
+            </view>
+            <view class="schedule-actions">
+              <view class="action-btn delete" catchtap="deleteSchedule" data-id="{{item.id}}">
+                <text>🗑️</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 日历视图 -->
+  <view class="calendar-view" wx:if="{{activeTab === 'calendar'}}">
+    <view class="calendar-card card">
+      <view class="calendar-header">
+        <view class="month-nav" bindtap="prevMonth">‹</view>
+        <text class="current-month">{{calendarYear}}年{{calendarMonth}}月</text>
+        <view class="month-nav" bindtap="nextMonth">›</view>
+      </view>
+
+      <view class="weekday-row">
+        <text class="weekday" wx:for="{{weekDays}}" wx:key="*this">{{item}}</text>
+      </view>
+
+      <view class="days-grid">
+        <view class="day-cell {{item.isToday ? 'today' : ''}} {{item.isSelected ? 'selected' : ''}} {{item.hasSchedule ? 'has-schedule' : ''}} {{item.isCurrentMonth ? '' : 'other-month'}}"
+              wx:for="{{calendarDays}}"
+              wx:key="date"
+              bindtap="selectDate"
+              data-date="{{item.date}}">
+          <text class="day-num">{{item.day}}</text>
+          <view class="schedule-dot" wx:if="{{item.hasSchedule}}"></view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 选中日期的日程 -->
+    <view class="selected-date-schedules card" wx:if="{{selectedDate}}">
+      <view class="card-header">
+        <text class="card-title">{{selectedDate}} 的日程</text>
+        <view class="add-btn-small" bindtap="showAddModal">+ 添加</view>
+      </view>
+
+      <view class="day-schedule-list" wx:if="{{selectedDateSchedules.length > 0}}">
+        <view class="day-schedule-item" wx:for="{{selectedDateSchedules}}" wx:key="id">
+          <text class="item-time">{{item.startTime}}</text>
+          <text class="item-content">{{item.content}}</text>
+          <view class="item-delete" catchtap="deleteSchedule" data-id="{{item.id}}">×</view>
+        </view>
+      </view>
+      <view class="empty-day" wx:else>
+        <text>暂无日程</text>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 添加/编辑日程弹窗 -->
+<view class="modal-mask" wx:if="{{showModal}}" bindtap="hideModal">
+  <view class="modal-content" catchtap="">
+    <view class="modal-header">
+      <text class="modal-title">{{editingItem ? '编辑日程' : '添加日程'}}</text>
+      <view class="modal-close" bindtap="hideModal">×</view>
+    </view>
+
+    <view class="form-group">
+      <text class="form-label">日期</text>
+      <picker mode="date" value="{{formData.date}}" bindchange="onDateChange">
+        <view class="picker-value">{{formData.date || '请选择日期'}}</view>
+      </picker>
+    </view>
+
+    <view class="form-row">
+      <view class="form-group half">
+        <text class="form-label">开始时间</text>
+        <picker mode="time" value="{{formData.startTime}}" bindchange="onStartTimeChange">
+          <view class="picker-value">{{formData.startTime || '09:00'}}</view>
+        </picker>
+      </view>
+      <view class="form-group half">
+        <text class="form-label">结束时间</text>
+        <picker mode="time" value="{{formData.endTime}}" bindchange="onEndTimeChange">
+          <view class="picker-value">{{formData.endTime || '10:00'}}</view>
+        </picker>
+      </view>
+    </view>
+
+    <view class="form-group">
+      <text class="form-label">内容</text>
+      <input class="form-input" placeholder="请输入日程内容" value="{{formData.content}}" bindinput="onContentInput"/>
+    </view>
+
+    <view class="form-group">
+      <text class="form-label">分类</text>
+      <view class="category-options">
+        <view class="category-option {{formData.category === 'work' ? 'selected' : ''}}"
+              bindtap="selectCategory" data-category="work">
+          <text>💼 工作</text>
+        </view>
+        <view class="category-option {{formData.category === 'life' ? 'selected' : ''}}"
+              bindtap="selectCategory" data-category="life">
+          <text>🏠 生活</text>
+        </view>
+        <view class="category-option {{formData.category === 'study' ? 'selected' : ''}}"
+              bindtap="selectCategory" data-category="study">
+          <text>📚 学习</text>
+        </view>
+      </view>
+    </view>
+
+    <button class="btn-primary submit-btn" bindtap="submitSchedule" loading="{{submitting}}">
+      {{submitting ? '保存中...' : '保存'}}
+    </button>
+  </view>
+</view>
+

@@ -1,0 +1,517 @@
+/* pages/pomodoro/pomodoro.wxss */
+.tabs {
+  display: flex;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16rpx;
+  padding: 8rpx;
+  margin-bottom: 30rpx;
+}
+
+.tab {
+  flex: 1;
+  text-align: center;
+  padding: 16rpx;
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.6);
+  border-radius: 12rpx;
+}
+
+.tab.active {
+  background: #3b82f6;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* 专注模式头部 */
+.focus-header {
+  text-align: center;
+  margin-bottom: 40rpx;
+}
+
+.focus-title {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #ffffff;
+  display: block;
+}
+
+.focus-subtitle {
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 8rpx;
+}
+
+/* 计时器圆环 */
+.timer-ring-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 40rpx;
+}
+
+.timer-ring {
+  width: 400rpx;
+  height: 400rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1a2a4a 0%, #0d1a30 100%);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 60rpx rgba(59, 130, 246, 0.3), inset 0 0 40rpx rgba(0, 0, 0, 0.3);
+}
+
+.timer-ring::before {
+  content: '';
+  position: absolute;
+  top: 10rpx;
+  left: 10rpx;
+  right: 10rpx;
+  bottom: 10rpx;
+  border-radius: 50%;
+  border: 4rpx solid rgba(59, 130, 246, 0.3);
+}
+
+.timer-canvas {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.timer-content {
+  text-align: center;
+  z-index: 2;
+}
+
+.timer-value {
+  font-size: 80rpx;
+  font-weight: 300;
+  color: #ffffff;
+  font-family: 'SF Mono', monospace;
+  letter-spacing: 4rpx;
+}
+
+.timer-status {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 8rpx;
+  display: block;
+}
+
+/* 时长选择 */
+.duration-options {
+  display: flex;
+  justify-content: center;
+  gap: 20rpx;
+  margin-bottom: 40rpx;
+}
+
+.duration-btn {
+  padding: 16rpx 32rpx;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 30rpx;
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.7);
+  border: 2rpx solid transparent;
+}
+
+.duration-btn.active {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+/* 控制按钮 */
+.control-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40rpx;
+  margin-bottom: 40rpx;
+}
+
+.control-btn {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.control-btn.play {
+  width: 120rpx;
+  height: 120rpx;
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+}
+
+.control-btn.pause {
+  width: 120rpx;
+  height: 120rpx;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.btn-icon {
+  font-size: 36rpx;
+  color: #ffffff;
+}
+
+.control-btn.play .btn-icon,
+.control-btn.pause .btn-icon {
+  font-size: 48rpx;
+}
+
+/* 当前任务 */
+.current-task {
+  margin-top: 20rpx;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.add-task-btn {
+  width: 48rpx;
+  height: 48rpx;
+  background: #3b82f6;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  color: #ffffff;
+}
+
+.task-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12rpx;
+  margin-bottom: 20rpx;
+}
+
+.task-checkbox {
+  width: 40rpx;
+  height: 40rpx;
+  border: 2rpx solid rgba(255, 255, 255, 0.3);
+  border-radius: 8rpx;
+  margin-right: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  color: #22c55e;
+}
+
+.task-checkbox.checked {
+  background: rgba(34, 197, 94, 0.2);
+  border-color: #22c55e;
+}
+
+.task-info {
+  flex: 1;
+}
+
+.task-name {
+  font-size: 28rpx;
+  color: #ffffff;
+  display: block;
+}
+
+.task-estimate {
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 4rpx;
+}
+
+.no-task {
+  padding: 30rpx;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 28rpx;
+  border: 2rpx dashed rgba(255, 255, 255, 0.2);
+  border-radius: 12rpx;
+}
+
+.today-focus-summary {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 20rpx;
+  border-top: 1rpx solid rgba(255, 255, 255, 0.1);
+}
+
+.summary-text {
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.summary-value {
+  font-size: 26rpx;
+  color: #3b82f6;
+  font-weight: 600;
+}
+
+/* 统计视图 */
+.stats-card {
+  margin-bottom: 24rpx;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20rpx;
+  margin-top: 20rpx;
+}
+
+.stat-box {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 16rpx;
+  padding: 24rpx;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #ffffff;
+  display: block;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 8rpx;
+}
+
+/* 分类统计 */
+.category-stats {
+  padding: 30rpx;
+}
+
+.category-bar-item {
+  margin-bottom: 24rpx;
+}
+
+.category-bar-item:last-child {
+  margin-bottom: 0;
+}
+
+.category-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12rpx;
+}
+
+.category-name {
+  font-size: 28rpx;
+  color: #ffffff;
+}
+
+.category-percent {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.progress-bar {
+  height: 12rpx;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 6rpx;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 6rpx;
+  transition: width 0.3s;
+}
+
+.progress-fill.work {
+  background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
+}
+
+.progress-fill.study {
+  background: linear-gradient(90deg, #22c55e 0%, #4ade80 100%);
+}
+
+.progress-fill.life {
+  background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%);
+}
+
+/* 日程视图 */
+.schedule-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.date-display {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.add-btn {
+  background: #3b82f6;
+  padding: 12rpx 24rpx;
+  border-radius: 20rpx;
+  font-size: 26rpx;
+  color: #ffffff;
+}
+
+.schedule-list {
+  padding: 10rpx;
+}
+
+.schedule-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 16rpx;
+  border-bottom: 1rpx solid rgba(255, 255, 255, 0.1);
+}
+
+.schedule-item:last-child {
+  border-bottom: none;
+}
+
+.schedule-time {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #3b82f6;
+  width: 100rpx;
+}
+
+.schedule-detail {
+  flex: 1;
+}
+
+.schedule-title {
+  font-size: 28rpx;
+  color: #ffffff;
+  display: block;
+}
+
+.schedule-desc {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 4rpx;
+}
+
+.schedule-actions {
+  display: flex;
+  gap: 20rpx;
+}
+
+.edit-icon, .delete-icon {
+  font-size: 32rpx;
+}
+
+.empty-schedule {
+  text-align: center;
+  padding: 60rpx;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 28rpx;
+}
+
+/* 任务选择弹窗 */
+.task-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: flex-end;
+  z-index: 1000;
+}
+
+.task-modal-content {
+  width: 100%;
+  background: #1a2a4a;
+  border-radius: 32rpx 32rpx 0 0;
+  padding: 40rpx;
+  max-height: 70vh;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30rpx;
+}
+
+.modal-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.modal-close {
+  font-size: 48rpx;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.task-list {
+  max-height: 400rpx;
+  overflow-y: auto;
+}
+
+.task-option {
+  display: flex;
+  align-items: center;
+  padding: 24rpx;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12rpx;
+  margin-bottom: 16rpx;
+}
+
+.task-option-time {
+  font-size: 28rpx;
+  color: #3b82f6;
+  width: 100rpx;
+}
+
+.task-option-content {
+  flex: 1;
+  font-size: 28rpx;
+  color: #ffffff;
+}
+
+.no-tasks {
+  text-align: center;
+  padding: 40rpx;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.quick-add {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 24rpx;
+  padding-top: 24rpx;
+  border-top: 1rpx solid rgba(255, 255, 255, 0.1);
+}
+
+.quick-input {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2rpx solid rgba(255, 255, 255, 0.2);
+  border-radius: 12rpx;
+  padding: 20rpx;
+  color: #ffffff;
+  font-size: 28rpx;
+}
+
+.quick-btn {
+  background: #3b82f6;
+  color: #ffffff;
+  border: none;
+  border-radius: 12rpx;
+  padding: 0 32rpx;
+  font-size: 28rpx;
+}
+

@@ -1,0 +1,46 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/scan/scan",
+    "pages/device/device",
+    "pages/schedule/schedule",
+    "pages/pomodoro/pomodoro",
+    "pages/stats/stats"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#0a1628",
+    "navigationBarTitleText": "太空人时钟",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#0a1628",
+    "backgroundTextStyle": "light"
+  },
+  "tabBar": {
+    "color": "#8a8a8a",
+    "selectedColor": "#3b82f6",
+    "backgroundColor": "#0a1628",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "设备",
+        "iconPath": "images/device.png",
+        "selectedIconPath": "images/device-active.png"
+      },
+      {
+        "pagePath": "pages/pomodoro/pomodoro",
+        "text": "专注",
+        "iconPath": "images/focus.png",
+        "selectedIconPath": "images/focus-active.png"
+      },
+      {
+        "pagePath": "pages/stats/stats",
+        "text": "统计",
+        "iconPath": "images/stats.png",
+        "selectedIconPath": "images/stats-active.png"
+      }
+    ]
+  },
+  "sitemapLocation": "sitemap.json",
+  "style": "v2"
+}
+

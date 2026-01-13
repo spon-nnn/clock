@@ -10,6 +10,7 @@
 #include <ESPAsyncWebServer.h>
 #include <OneButton.h>
 #include <vector>
+#include <qrcode.h>
 #include "DataManager.h" // 引入新的数据管理器
 
 // 用户配置
@@ -57,9 +58,14 @@ unsigned int localPort = 8000;
 byte packetBuffer[48]; 
 
 // 页面状态管理
-enum Page { PAGE_WEATHER, PAGE_SCHEDULE, PAGE_POMODORO };
+enum Page { PAGE_BINDQR, PAGE_WEATHER, PAGE_SCHEDULE, PAGE_POMODORO };
 Page currentPage = PAGE_WEATHER;
 bool pageChanged = true;
+
+// 长按重置检测
+unsigned long buttonPressStart = 0;
+bool isLongPressing = false;
+const unsigned long FACTORY_RESET_HOLD = 10000; // 长按10秒恢复出厂
 
 // 日程数据 (已由 DataManager 接管)
 // std::vector<String> scheduleList;
@@ -85,17 +91,17 @@ void weaterData(String *cityDZ, String *dataSK, String *dataFC);
 void scrollBanner();
 void scrollTxt(int pos);
 void imgAnim();
+void onBtnDuringLongPress(); // 长按检测
 String week();
 String monthDay();
 String hourMinute();
 String num2str(int digits);
-int second(); 
+int second();
 int minute();
 int hour();
 int weekday();
 int month();
 int day();
-time_t now();
 
 // JPEG解码回调
 bool tft_output(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap) {
@@ -111,9 +117,9 @@ bool tft_output(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap) 
 
 // ------------------- Web服务器 -------------------
 const char index_html[] PROGMEM = R"rawliteral(
-<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Space Clock Console v2.1</title>
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>太空人时钟控制台</title>
 <style>
-body{font-family:sans-serif;margin:0;padding:20px;background:#f0f2f5;color:#333}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;margin:0;padding:20px;background:#f0f2f5;color:#333}
 .card{background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1);margin-bottom:20px}
 h2,h3{margin-top:0}
 input,button,select{padding:10px;margin:5px 0;width:100%;box-sizing:border-box;border:1px solid #ddd;border-radius:4px}
@@ -130,8 +136,6 @@ tr:hover{background-color:#f5f5f5}
 .tag.work{background:#1890ff}
 .tag.life{background:#52c41a}
 .tag.study{background:#faad14}
-
-/* Modal Styles */
 .modal{display:none;position:fixed;z-index:99;left:0;top:0;width:100%;height:100%;overflow:auto;background-color:rgba(0,0,0,0.4)}
 .modal-content{background-color:#fefefe;margin:10% auto;padding:25px;border:1px solid #888;width:90%;max-width:500px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15)}
 .close{color:#aaa;float:right;font-size:28px;font-weight:bold;cursor:pointer}
@@ -140,90 +144,91 @@ tr:hover{background-color:#f5f5f5}
 .form-group label{display:block;margin-bottom:5px;font-weight:500}
 </style></head><body>
 
-<h1>Space Clock Console</h1>
+<h1>🚀 太空人时钟控制台</h1>
 
 <div class="card">
   <div style="display:flex;justify-content:space-between;align-items:center">
-    <h2>Schedule</h2>
+    <h2>📅 日程计划</h2>
     <div>
-        <button onclick="delTodo('all')" style="width:auto;padding:8px 16px;background:#ff4d4f;margin-right:10px">Clear All</button>
-        <button onclick="openModal()" style="width:auto;padding:8px 16px">+ New Task</button>
+        <button onclick="delTodo('all')" style="width:auto;padding:8px 16px;background:#ff4d4f;margin-right:10px">清空全部</button>
+        <button onclick="openModal()" style="width:auto;padding:8px 16px">+ 新建任务</button>
     </div>
   </div>
   <div style="overflow-x:auto">
     <table id="scheduleTable">
-      <thead><tr><th>Date</th><th>Time</th><th>Content</th><th>Cat</th><th>Action</th></tr></thead>
+      <thead><tr><th>日期</th><th>时间</th><th>内容</th><th>分类</th><th>操作</th></tr></thead>
       <tbody id="scheduleBody"></tbody>
     </table>
   </div>
 </div>
 
 <div class="card">
-  <h2>Focus Stats</h2>
+  <h2>🍅 专注统计</h2>
   <div style="display:flex;justify-content:space-around;text-align:center;margin-bottom:20px">
     <div>
         <div style="font-size:24px;font-weight:bold;color:#1890ff" id="todayFocus">0</div>
-        <div style="color:#666">Today (mins)</div>
+        <div style="color:#666">今日专注(分钟)</div>
     </div>
     <div>
         <div style="font-size:24px;font-weight:bold;color:#52c41a" id="totalFocus">0</div>
-        <div style="color:#666">Total (mins)</div>
+        <div style="color:#666">累计专注(分钟)</div>
     </div>
   </div>
-  <h3>Recent Sessions</h3>
+  <h3>📝 最近记录</h3>
   <ul id="focusList" style="list-style:none;padding:0"></ul>
 </div>
 
-<!-- Add Task Modal -->
+<!-- 添加任务弹窗 -->
 <div id="taskModal" class="modal">
   <div class="modal-content">
     <span class="close" onclick="closeModal()">&times;</span>
-    <h3>Add New Task</h3>
+    <h3>添加新任务</h3>
     <div class="form-group">
-        <label>Date</label>
+        <label>日期</label>
         <input type="date" id="mDate">
     </div>
     <div class="row">
         <div class="form-group" style="flex:1">
-            <label>Start Time</label>
+            <label>开始时间</label>
             <input type="time" id="mStart" value="09:00">
         </div>
         <div class="form-group" style="flex:1">
-            <label>End Time</label>
+            <label>结束时间</label>
             <input type="time" id="mEnd" value="10:00">
         </div>
     </div>
     <div class="form-group">
-        <label>Content</label>
-        <input type="text" id="mContent" placeholder="What to do?">
+        <label>内容</label>
+        <input type="text" id="mContent" placeholder="请输入任务内容">
     </div>
     <div class="form-group">
-        <label>Category</label>
+        <label>分类</label>
         <select id="mCat">
-            <option value="work">Work</option>
-            <option value="life">Life</option>
-            <option value="study">Study</option>
+            <option value="work">工作</option>
+            <option value="life">生活</option>
+            <option value="study">学习</option>
         </select>
     </div>
     <div style="text-align:right;margin-top:20px">
-        <button onclick="saveTodo()" style="width:auto;padding:10px 24px">Save</button>
+        <button onclick="saveTodo()" style="width:auto;padding:10px 24px">保存</button>
     </div>
   </div>
 </div>
 
-<!-- Confirm Modal -->
+<!-- 确认弹窗 -->
 <div id="confirmModal" class="modal">
   <div class="modal-content" style="max-width:300px;text-align:center">
-    <h3 id="confirmTitle">Confirm</h3>
-    <p id="confirmMsg" style="margin:20px 0;font-size:16px">Are you sure?</p>
+    <h3 id="confirmTitle">确认操作</h3>
+    <p id="confirmMsg" style="margin:20px 0;font-size:16px">确定要执行此操作吗？</p>
     <div style="display:flex;justify-content:center;gap:15px">
-        <button onclick="closeConfirm()" style="background:#f5f5f5;color:#333;border:1px solid #ddd">Cancel</button>
-        <button id="confirmBtn" style="background:#ff4d4f">Delete</button>
+        <button onclick="closeConfirm()" style="background:#f5f5f5;color:#333;border:1px solid #ddd">取消</button>
+        <button id="confirmBtn" style="background:#ff4d4f">确定</button>
     </div>
   </div>
 </div>
 
 <script>
+const catNames = {work:'工作',life:'生活',study:'学习'};
 async function load() {
   try {
     const res = await fetch('/api/data');
@@ -239,22 +244,21 @@ function renderTable(list) {
   const tbody = document.getElementById('scheduleBody');
   tbody.innerHTML = '';
   if(list.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999">No tasks yet</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999">暂无任务</td></tr>';
       return;
   }
-  // Sort by date/time
   list.sort((a,b) => (a.date + a.startTime).localeCompare(b.date + b.startTime));
   
   list.forEach((item) => {
      const catClass = item.category || 'work';
-     const catText = item.category ? item.category.toUpperCase() : 'WORK';
+     const catText = catNames[item.category] || '工作';
      tbody.innerHTML += `
      <tr>
          <td>${item.date}</td>
          <td>${item.startTime} - ${item.endTime || item.startTime}</td>
          <td>${item.content}</td>
          <td><span class="tag ${catClass}">${catText}</span></td>
-         <td><button class="del" onclick="delTodo('${item.id}')">Del</button></td>
+         <td><button class="del" onclick="delTodo('${item.id}')">删除</button></td>
      </tr>`;
    });
 }
@@ -265,14 +269,13 @@ function renderFocusList(list) {
   ul.innerHTML = '';
   const recent = list.slice(-10).reverse();
   
-  // Helper to format timestamp (treated as UTC to avoid browser timezone shift)
   const fmtTime = (ts) => {
       const d = new Date(ts * 1000);
       return d.getUTCHours().toString().padStart(2,'0') + ":" + d.getUTCMinutes().toString().padStart(2,'0');
   };
   const fmtDate = (ts) => {
       const d = new Date(ts * 1000);
-      return (d.getUTCMonth()+1) + "/" + d.getUTCDate();
+      return (d.getUTCMonth()+1) + "月" + d.getUTCDate() + "日";
   };
 
   recent.forEach((item) => {
@@ -285,19 +288,18 @@ function renderFocusList(list) {
         <div style="display:flex;justify-content:space-between;align-items:center">
             <div>
                 <div style="font-weight:bold">${dateStr}</div>
-                <div style="color:#666;font-size:14px">${timeStr} <span style="color:#1890ff;margin-left:5px">(${item.duration}m)</span></div>
+                <div style="color:#666;font-size:14px">${timeStr} <span style="color:#1890ff;margin-left:5px">(${item.duration}分钟)</span></div>
             </div>
-            <button class="del" onclick="delFocus('${item.id}')">Del</button>
+            <button class="del" onclick="delFocus('${item.id}')">删除</button>
         </div>
         <div style="display:flex;gap:5px;margin-top:10px">
-            <input type="text" value="${note}" placeholder="Add note..." id="note-${item.id}" style="margin:0;font-size:14px">
-            <button onclick="updateFocus('${item.id}')" style="width:auto;padding:5px 12px;font-size:14px">Save</button>
+            <input type="text" value="${note}" placeholder="添加备注..." id="note-${item.id}" style="margin:0;font-size:14px">
+            <button onclick="updateFocus('${item.id}')" style="width:auto;padding:5px 12px;font-size:14px">保存</button>
         </div>
     </li>`;
   });
 }
 
-// Modal Logic
 const modal = document.getElementById("taskModal");
 const confirmModal = document.getElementById("confirmModal");
 let pendingAction = null;
@@ -339,12 +341,11 @@ async function saveTodo() {
   const content = document.getElementById('mContent').value;
   const cat = document.getElementById('mCat').value;
   
-  if(!content) { alert("Please enter task content"); return; }
-  
-  // 防抖：禁用按钮并更改文本
+  if(!content) { alert("请输入任务内容"); return; }
+
   btn.disabled = true;
-  btn.innerText = "Saving...";
-  
+  btn.innerText = "保存中...";
+
   const payload = {
       action: 'add',
       item: {
@@ -356,23 +357,22 @@ async function saveTodo() {
           isDone: false
       }
   };
-  
+
   try {
       await fetch('/api/schedule', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
       closeModal();
       document.getElementById('mContent').value = '';
       load();
   } catch(e) {
-      alert("Failed to save task. Please try again.");
+      alert("保存失败，请重试");
   } finally {
-      // 恢复按钮状态
       btn.disabled = false;
-      btn.innerText = "Save";
+      btn.innerText = "保存";
   }
 }
 
 async function delTodo(id) {
-  const msg = id === 'all' ? "Clear ALL tasks? This cannot be undone!" : "Delete this task?";
+  const msg = id === 'all' ? "确定要清空所有任务吗？此操作无法撤销！" : "确定要删除这条任务吗？";
   showConfirm(msg, async () => {
       await fetch('/api/schedule', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action:'del', id:id})});
       load();
@@ -386,7 +386,7 @@ async function updateFocus(id) {
 }
 
 async function delFocus(id) {
-    showConfirm("Delete this record?", async () => {
+    showConfirm("确定要删除这条记录吗？", async () => {
         await fetch('/api/focus', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action:'del', id:id})});
         load();
     });
@@ -396,10 +396,163 @@ load();
 </script></body></html>
 )rawliteral";
 
+// ------------------- 二维码绑定页面渲染 -------------------
+void renderBindingQRPage() {
+    if (pageChanged) {
+        tft.fillScreen(TFT_BLACK);
+
+        // 获取二维码内容
+        String qrContent = DB.getQRCodeContent();
+        Serial.printf("QR Content: %s\n", qrContent.c_str());
+
+        // 创建二维码
+        QRCode qrcode;
+        uint8_t qrcodeData[qrcode_getBufferSize(6)]; // Version 6 = 41x41 modules
+        qrcode_initText(&qrcode, qrcodeData, 6, ECC_LOW, qrContent.c_str());
+
+        // 计算绘制参数 - 在240x240屏幕上居中显示
+        int scale = 4; // 每个模块4像素
+        int qrSize = qrcode.size * scale;
+        int offsetX = (240 - qrSize) / 2;
+        int offsetY = 50; // 顶部留空显示文字
+
+        // 绘制白色背景
+        tft.fillRect(offsetX - 8, offsetY - 8, qrSize + 16, qrSize + 16, TFT_WHITE);
+
+        // 绘制二维码
+        for (uint8_t y = 0; y < qrcode.size; y++) {
+            for (uint8_t x = 0; x < qrcode.size; x++) {
+                if (qrcode_getModule(&qrcode, x, y)) {
+                    tft.fillRect(offsetX + x * scale, offsetY + y * scale, scale, scale, TFT_BLACK);
+                }
+            }
+        }
+
+        // 绘制提示文字
+        tft.setTextColor(TFT_WHITE, TFT_BLACK);
+        tft.setTextDatum(TC_DATUM);
+        tft.drawString("WeChat Scan", 120, 10, 4);
+
+        // 底部显示设备ID
+        tft.setTextDatum(BC_DATUM);
+        tft.setTextColor(TFT_CYAN, TFT_BLACK);
+        tft.drawString(DB.getBindingConfig().deviceId, 120, 230, 2);
+
+        pageChanged = false;
+    }
+}
+
 void setupWebserver() {
+  // 添加CORS支持
+  DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "*");
+  DefaultHeaders::Instance().addHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  DefaultHeaders::Instance().addHeader("Access-Control-Allow-Headers", "Content-Type, X-Auth-Token");
+
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/html", index_html);
   });
+
+  // ==================== 设备信息与绑定API ====================
+
+  // 获取设备信息
+  server.on("/api/device/info", HTTP_GET, [](AsyncWebServerRequest *request){
+    DynamicJsonDocument doc(512);
+    BindingConfig& cfg = DB.getBindingConfig();
+
+    doc["deviceId"] = cfg.deviceId;
+    doc["isBound"] = cfg.isBound;
+    doc["boundNickname"] = cfg.boundNickname;
+    doc["ip"] = WiFi.localIP().toString();
+
+    String response;
+    serializeJson(doc, response);
+    request->send(200, "application/json", response);
+  });
+
+  // 绑定设备 (小程序调用)
+  server.on("/api/device/bind", HTTP_POST, [](AsyncWebServerRequest *request){}, NULL,
+    [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total){
+    DynamicJsonDocument doc(512);
+    deserializeJson(doc, data);
+
+    String token = doc["token"].as<String>();
+    String userId = doc["userId"].as<String>();
+    String nickname = doc["nickname"].as<String>();
+
+    DynamicJsonDocument resp(256);
+
+    if (!DB.verifyBindToken(token)) {
+        resp["success"] = false;
+        resp["error"] = "Invalid token";
+    } else if (DB.getBindingConfig().isBound) {
+        resp["success"] = false;
+        resp["error"] = "Device already bound";
+    } else {
+        DB.bindDevice(userId, nickname);
+        resp["success"] = true;
+        resp["deviceId"] = DB.getBindingConfig().deviceId;
+
+        // 绑定成功后切换到天气页面
+        currentPage = PAGE_WEATHER;
+        pageChanged = true;
+    }
+
+    String response;
+    serializeJson(resp, response);
+    request->send(200, "application/json", response);
+  });
+
+  // 解绑设备
+  server.on("/api/device/unbind", HTTP_POST, [](AsyncWebServerRequest *request){}, NULL,
+    [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total){
+    DynamicJsonDocument doc(256);
+    deserializeJson(doc, data);
+
+    String userId = doc["userId"].as<String>();
+    DynamicJsonDocument resp(128);
+
+    // 验证是否是绑定用户
+    if (DB.getBindingConfig().boundUserId == userId) {
+        DB.unbindDevice();
+        resp["success"] = true;
+
+        // 解绑后显示二维码
+        currentPage = PAGE_BINDQR;
+        pageChanged = true;
+    } else {
+        resp["success"] = false;
+        resp["error"] = "Not authorized";
+    }
+
+    String response;
+    serializeJson(resp, response);
+    request->send(200, "application/json", response);
+  });
+
+  // 验证用户权限
+  server.on("/api/device/verify", HTTP_POST, [](AsyncWebServerRequest *request){}, NULL,
+    [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total){
+    DynamicJsonDocument doc(256);
+    deserializeJson(doc, data);
+
+    String userId = doc["userId"].as<String>();
+    DynamicJsonDocument resp(256);
+
+    BindingConfig& cfg = DB.getBindingConfig();
+    if (cfg.isBound && cfg.boundUserId == userId) {
+        resp["authorized"] = true;
+        resp["deviceId"] = cfg.deviceId;
+        resp["nickname"] = cfg.boundNickname;
+    } else {
+        resp["authorized"] = false;
+    }
+
+    String response;
+    serializeJson(resp, response);
+    request->send(200, "application/json", response);
+  });
+
+  // ==================== 原有数据API ====================
 
   server.on("/api/data", HTTP_GET, [](AsyncWebServerRequest *request){
     DynamicJsonDocument doc(8192); // 增加缓冲区大小
@@ -491,11 +644,11 @@ void renderWeatherPage() {
     TJpgDec.drawJpg(159,130,humidity, sizeof(humidity));
     TJpgDec.drawJpg(0,0,watchtop, sizeof(watchtop));
     TJpgDec.drawJpg(0,220,watchbottom, sizeof(watchbottom));
-    
-    // 强制刷新一次数据
-    weaterData(NULL, NULL, NULL); // 需要修改weaterData以支持缓存重绘，这里暂时只绘制框架
-    // 简单起见，这里假设weaterTime会自动触发刷新
-    weaterTime = 0; // 强制刷新
+
+    // 注意：不要用 NULL 调用 weaterData()。原版逻辑是通过 getCityWeater()/weaterData() 刷新数据。
+    // 这里仅绘制框架，并强制下一轮去拉取天气。
+    weaterTime = 0;
+
     pageChanged = false;
   }
 
@@ -679,10 +832,16 @@ void renderPomodoroPage() {
 
 // ------------------- 按键回调 -------------------
 void onBtnClick() {
-  // 即使在专注模式下，也允许切换页面查看其他信息
-  // 专注状态 isFocusing 保持不变，计时继续在后台运行
+  isLongPressing = false; // 重置长按状态
 
-  // 切换页面
+  // 未绑定状态下，点击刷新二维码
+  if (currentPage == PAGE_BINDQR) {
+    DB.generateBindToken();
+    pageChanged = true;
+    return;
+  }
+
+  // 已绑定状态下，切换页面
   int next = (int)currentPage + 1;
   if (next > PAGE_POMODORO) next = PAGE_WEATHER;
   currentPage = (Page)next;
@@ -690,6 +849,8 @@ void onBtnClick() {
 }
 
 void onBtnLongPress() {
+  isLongPressing = false; // 重置
+
   if (currentPage == PAGE_POMODORO) {
     if (isFocusing) {
       // 长按停止专注并保存
@@ -756,25 +917,32 @@ void loading(byte delayTime){
 }
 
 void setup() {
-  Serial.begin(9600);
-  // LittleFS.begin(); // DataManager 会自己调用
+  Serial.begin(115200);
+  Serial.println("\n\n========================================");
+  Serial.println("🚀 太空人智能时钟 v1.0");
+  Serial.println("========================================");
+
   DB.begin(); // 初始化数据管理器
-  // loadData(); // 已废弃
+  DB.initDeviceId(); // 确保设备ID已初始化
+  Serial.printf("📱 Device ID: %s\n", DB.getBindingConfig().deviceId.c_str());
 
-  // 运行存储自检 (已禁用，防止重复写数据)
-  // DB.runSelfTest();
-
+  Serial.println("🖥️  初始化屏幕...");
   tft.init();
   tft.setRotation(0);
   tft.fillScreen(0x0000);
   tft.setTextColor(TFT_BLACK, bgColor);
 
   // WiFi
+  Serial.printf("📡 正在连接WiFi: %s\n", ssid);
   WiFi.begin(ssid, pass);
   while (WiFi.status() != WL_CONNECTED) {
     loading(100);
+    Serial.print(".");
   }
+  Serial.println("\n✅ WiFi已连接！");
+  Serial.print("🌐 IP地址: ");
   Serial.println(WiFi.localIP());
+  Serial.println("========================================");
 
   // UDP & Time
   Udp.begin(localPort);
@@ -788,15 +956,29 @@ void setup() {
 
   // Web Server
   setupWebserver();
-
-  // 尝试加载字体 (已禁用)
-  // loadCustomFont();
+  Serial.printf("🌍 Web服务器: http://%s/\n", WiFi.localIP().toString().c_str());
 
   // Button
   btn.attachClick(onBtnClick);
   btn.attachLongPressStart(onBtnLongPress);
-  
-  // 初始化界面
+  btn.attachDuringLongPress(onBtnDuringLongPress);
+
+  // 检查绑定状态 - 未绑定则显示二维码
+  if (!DB.getBindingConfig().isBound) {
+    // 关键：确保 bindToken 有值，但不要每次循环都生成
+    if (DB.getBindingConfig().bindToken.length() == 0) {
+      DB.generateBindToken();
+    }
+
+    currentPage = PAGE_BINDQR;
+    Serial.println("⚠️  设备未绑定，显示二维码页面");
+    Serial.println("📱 请使用微信小程序扫码绑定");
+  } else {
+    currentPage = PAGE_WEATHER;
+    Serial.printf("✅ 设备已绑定: %s\n", DB.getBindingConfig().boundNickname.c_str());
+  }
+  Serial.println("========================================\n");
+
   pageChanged = true;
 }
 
@@ -804,6 +986,9 @@ void loop() {
   btn.tick();
   
   switch(currentPage) {
+    case PAGE_BINDQR:
+      renderBindingQRPage();
+      break;
     case PAGE_WEATHER:
       renderWeatherPage();
       break;
@@ -814,6 +999,41 @@ void loop() {
       renderPomodoroPage();
       break;
   }
+}
+
+// 长按过程中检测 - 用于恢复出厂设置
+void onBtnDuringLongPress() {
+    if (!isLongPressing) {
+        isLongPressing = true;
+        buttonPressStart = millis();
+    }
+
+    unsigned long holdTime = millis() - buttonPressStart;
+
+    // 显示重置进度
+    if (holdTime > 3000) { // 3秒后开始显示提示
+        int progress = map(holdTime, 3000, FACTORY_RESET_HOLD, 0, 100);
+        if (progress > 100) progress = 100;
+
+        tft.fillRect(20, 200, 200, 30, TFT_BLACK);
+        tft.drawRect(20, 205, 200, 20, TFT_WHITE);
+        tft.fillRect(22, 207, progress * 196 / 100, 16, TFT_RED);
+
+        if (holdTime >= FACTORY_RESET_HOLD) {
+            // 执行恢复出厂设置
+            tft.fillScreen(TFT_RED);
+            tft.setTextColor(TFT_WHITE, TFT_RED);
+            tft.setTextDatum(MC_DATUM);
+            tft.drawString("FACTORY RESET", 120, 100, 4);
+            tft.drawString("Please wait...", 120, 140, 2);
+
+            DB.factoryReset();
+            delay(2000);
+
+            // 重启设备
+            ESP.restart();
+        }
+    }
 }
 
 // ------------------- 辅助函数 (保持原有逻辑) -------------------

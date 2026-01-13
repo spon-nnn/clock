@@ -8,6 +8,16 @@
 
 // 数据模型定义
 
+// 0. 设备绑定配置
+struct BindingConfig {
+    String deviceId;      // 设备唯一ID (基于芯片ID)
+    String bindToken;     // 绑定Token (随机生成，用于验证)
+    bool isBound;         // 是否已绑定
+    String boundUserId;   // 绑定的微信用户OpenID
+    String boundNickname; // 绑定用户昵称
+    unsigned long bindTime; // 绑定时间戳
+};
+
 // 1. 日程项
 struct ScheduleItem {
     String id;          // 唯一ID (时间戳)
@@ -85,6 +95,16 @@ public:
     DataManager();
     void begin();
 
+    // === 设备绑定管理 ===
+    BindingConfig& getBindingConfig();
+    void initDeviceId();           // 初始化设备ID (基于芯片ID)
+    void generateBindToken();      // 生成新的绑定Token
+    bool bindDevice(String userId, String nickname); // 绑定设备到用户
+    void unbindDevice();           // 解绑设备
+    void factoryReset();           // 恢复出厂设置
+    String getQRCodeContent();     // 获取二维码内容JSON
+    bool verifyBindToken(String token); // 验证绑定Token
+
     // 日程操作
     void addSchedule(ScheduleItem item);
     void deleteSchedule(String id);
@@ -105,11 +125,16 @@ public:
     bool runSelfTest();
 
 private:
+    BindingConfig bindingConfig;
     std::vector<ScheduleItem> schedules;
     std::vector<FocusRecord> focusRecords;
     
+    const char* BINDING_FILE = "/binding.json";
     const char* SCHEDULE_FILE = "/schedules_v2.json";
     const char* FOCUS_FILE = "/focus_v3.json"; // 升级文件版本以避免格式冲突
+
+    void loadBindingConfig();
+    void saveBindingConfig();
 
     void loadSchedules();
     void saveSchedules(); 

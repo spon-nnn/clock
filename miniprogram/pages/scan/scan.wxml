@@ -1,0 +1,84 @@
+<!--pages/scan/scan.wxml - 扫码绑定页面-->
+<view class="container">
+  <!-- 扫码提示 -->
+  <view class="scan-header">
+    <view class="scan-icon">📷</view>
+    <text class="scan-title">扫描设备二维码</text>
+    <text class="scan-desc">请将摄像头对准太空人时钟屏幕上显示的二维码</text>
+  </view>
+
+  <!-- 扫码结果 -->
+  <view class="scan-result card" wx:if="{{scanResult}}">
+    <view class="result-header">
+      <view class="result-icon">{{bindSuccess ? '✅' : '📱'}}</view>
+      <text class="result-title">{{bindSuccess ? '绑定成功' : '发现设备'}}</text>
+    </view>
+
+    <view class="device-info-card">
+      <view class="info-row">
+        <text class="info-label">设备ID</text>
+        <text class="info-value">{{scanResult.did}}</text>
+      </view>
+      <view class="info-row">
+        <text class="info-label">IP地址</text>
+        <text class="info-value">{{scanResult.ip}}</text>
+      </view>
+      <view class="info-row" wx:if="{{bindSuccess}}">
+        <text class="info-label">绑定状态</text>
+        <text class="info-value text-green">已绑定</text>
+      </view>
+    </view>
+
+    <view class="action-buttons" wx:if="{{!bindSuccess}}">
+      <button class="btn-primary" bindtap="bindDevice" loading="{{binding}}">
+        {{binding ? '绑定中...' : '确认绑定'}}
+      </button>
+      <button class="btn-secondary mt-20" bindtap="rescan">重新扫描</button>
+    </view>
+
+    <view class="action-buttons" wx:else>
+      <button class="btn-primary" bindtap="goToDevice">进入设备</button>
+      <button class="btn-secondary mt-20" bindtap="goBack">返回列表</button>
+    </view>
+  </view>
+
+  <!-- 扫码按钮 -->
+  <view class="scan-actions" wx:if="{{!scanResult}}">
+    <button class="scan-btn" bindtap="startScan">
+      <view class="scan-btn-inner">
+        <text class="scan-btn-icon">📷</text>
+        <text class="scan-btn-text">开始扫描</text>
+      </view>
+    </button>
+
+    <view class="manual-input mt-40">
+      <text class="manual-title">或手动输入设备IP</text>
+      <view class="input-row">
+        <input class="input" placeholder="例如: 192.168.1.100" bindinput="onIpInput" value="{{manualIp}}"/>
+        <button class="btn-primary" style="width: auto; margin-left: 20rpx;" bindtap="manualConnect">连接</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 使用说明 -->
+  <view class="tips card" wx:if="{{!scanResult}}">
+    <text class="card-title">使用说明</text>
+    <view class="tip-item">
+      <text class="tip-num">1</text>
+      <text class="tip-text">确保手机与时钟设备连接同一WiFi网络</text>
+    </view>
+    <view class="tip-item">
+      <text class="tip-num">2</text>
+      <text class="tip-text">在时钟设备上长按按钮进入绑定模式</text>
+    </view>
+    <view class="tip-item">
+      <text class="tip-num">3</text>
+      <text class="tip-text">使用本小程序扫描屏幕上的二维码</text>
+    </view>
+    <view class="tip-item">
+      <text class="tip-num">4</text>
+      <text class="tip-text">绑定成功后即可控制设备</text>
+    </view>
+  </view>
+</view>
+

@@ -1,0 +1,120 @@
+<!--pages/stats/stats.wxml - 统计页面-->
+<view class="container">
+  <!-- 顶部总览 -->
+  <view class="overview-card">
+    <view class="overview-header">
+      <text class="overview-title">专注时间统计</text>
+      <view class="period-selector">
+        <text class="period-btn {{period === 'week' ? 'active' : ''}}" bindtap="setPeriod" data-period="week">本周</text>
+        <text class="period-btn {{period === 'month' ? 'active' : ''}}" bindtap="setPeriod" data-period="month">本月</text>
+      </view>
+    </view>
+
+    <view class="stats-highlight">
+      <view class="highlight-item">
+        <text class="highlight-value">{{periodStats.hours}}</text>
+        <text class="highlight-unit">小时</text>
+        <text class="highlight-label">{{period === 'week' ? '本周专注' : '本月专注'}}</text>
+      </view>
+      <view class="highlight-divider"></view>
+      <view class="highlight-item">
+        <text class="highlight-value">{{periodStats.minutes}}</text>
+        <text class="highlight-unit">分钟</text>
+        <text class="highlight-label">{{period === 'week' ? '本周专注' : '本月专注'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 详细统计网格 -->
+  <view class="detail-grid">
+    <view class="detail-card">
+      <view class="detail-icon">🍅</view>
+      <text class="detail-value">{{totalPomodoros}}</text>
+      <text class="detail-label">完成番茄钟</text>
+    </view>
+    <view class="detail-card">
+      <view class="detail-icon">🔥</view>
+      <text class="detail-value">{{streakDays}}</text>
+      <text class="detail-label">最长连续天数</text>
+    </view>
+    <view class="detail-card">
+      <view class="detail-icon">📅</view>
+      <text class="detail-value">{{activeDays}}</text>
+      <text class="detail-label">活跃天数</text>
+    </view>
+    <view class="detail-card">
+      <view class="detail-icon">⏱️</view>
+      <text class="detail-value">{{avgDaily}}</text>
+      <text class="detail-label">日均专注(分钟)</text>
+    </view>
+  </view>
+
+  <!-- 分类统计 -->
+  <view class="category-section card">
+    <text class="section-title">专注任务分类</text>
+
+    <view class="category-chart">
+      <!-- 简单的横向条形图 -->
+      <view class="category-row" wx:for="{{categories}}" wx:key="name">
+        <view class="category-info">
+          <view class="category-dot" style="background: {{item.color}}"></view>
+          <text class="category-name">{{item.name}}</text>
+        </view>
+        <view class="category-bar-wrapper">
+          <view class="category-bar" style="width: {{item.percent}}%; background: {{item.color}}"></view>
+        </view>
+        <text class="category-percent">{{item.percent}}%</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 最近记录 -->
+  <view class="records-section card">
+    <view class="section-header">
+      <text class="section-title">最近专注记录</text>
+      <text class="clear-btn" bindtap="clearRecords">清空</text>
+    </view>
+
+    <view class="record-list">
+      <view class="record-item" wx:for="{{recentRecords}}" wx:key="id">
+        <view class="record-date">
+          <text class="date-day">{{item.day}}</text>
+          <text class="date-month">{{item.month}}月</text>
+        </view>
+        <view class="record-info">
+          <text class="record-time">{{item.startTime}} - {{item.endTime}}</text>
+          <text class="record-duration">{{item.duration}}分钟</text>
+        </view>
+        <view class="record-note" wx:if="{{item.note}}">
+          <text>{{item.note}}</text>
+        </view>
+      </view>
+
+      <view class="empty-records" wx:if="{{recentRecords.length === 0}}">
+        <text>暂无专注记录</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 设备信息 -->
+  <view class="device-section card" wx:if="{{device}}">
+    <text class="section-title">当前设备</text>
+    <view class="device-info-row">
+      <text class="device-label">设备名称</text>
+      <text class="device-value">{{device.name || '太空人时钟'}}</text>
+    </view>
+    <view class="device-info-row">
+      <text class="device-label">设备ID</text>
+      <text class="device-value">{{device.deviceId}}</text>
+    </view>
+    <view class="device-info-row">
+      <text class="device-label">IP地址</text>
+      <text class="device-value">{{device.ip}}</text>
+    </view>
+    <view class="device-info-row">
+      <text class="device-label">状态</text>
+      <text class="device-value {{device.online ? 'online' : 'offline'}}">{{device.online ? '在线' : '离线'}}</text>
+    </view>
+  </view>
+</view>
+

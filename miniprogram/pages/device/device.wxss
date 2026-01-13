@@ -1,0 +1,293 @@
+/* pages/device/device.wxss - 设备详情样式 */
+.device-header {
+  padding: 20rpx 0;
+  margin-bottom: 20rpx;
+}
+
+.device-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
+.device-name {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.device-status {
+  display: flex;
+  align-items: center;
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+}
+
+.device-status.online {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+}
+
+.device-status.offline {
+  background: rgba(107, 114, 128, 0.2);
+  color: #6b7280;
+}
+
+.device-status .status-dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  margin-right: 8rpx;
+}
+
+.device-status.online .status-dot {
+  background: #22c55e;
+}
+
+.device-status.offline .status-dot {
+  background: #6b7280;
+}
+
+.device-meta {
+  display: flex;
+  gap: 20rpx;
+}
+
+.device-id, .device-ip {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* 天气卡片 */
+.weather-card {
+  position: relative;
+  background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #3b82f6 100%);
+  border-radius: 32rpx;
+  padding: 40rpx;
+  margin-bottom: 30rpx;
+  overflow: hidden;
+  min-height: 400rpx;
+}
+
+.weather-bg {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 300rpx;
+  height: 300rpx;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+}
+
+.weather-content {
+  position: relative;
+  z-index: 2;
+}
+
+.weather-header {
+  margin-bottom: 20rpx;
+}
+
+.location .city {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.location .update-time {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.6);
+  margin-left: 16rpx;
+}
+
+.weather-main {
+  margin-bottom: 30rpx;
+}
+
+.temp-display {
+  display: inline-flex;
+  align-items: flex-start;
+}
+
+.temperature {
+  font-size: 120rpx;
+  font-weight: 300;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.temp-unit {
+  font-size: 48rpx;
+  color: #ffffff;
+  margin-top: 16rpx;
+}
+
+.weather-desc {
+  font-size: 36rpx;
+  color: rgba(255, 255, 255, 0.9);
+  margin-left: 20rpx;
+}
+
+.weather-details {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 20rpx;
+  border-top: 1rpx solid rgba(255, 255, 255, 0.2);
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.detail-icon {
+  font-size: 32rpx;
+  margin-bottom: 8rpx;
+}
+
+.detail-value {
+  font-size: 28rpx;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.detail-label {
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 4rpx;
+}
+
+/* 太空人 */
+.astronaut-container {
+  position: absolute;
+  right: 20rpx;
+  bottom: 100rpx;
+  width: 160rpx;
+  height: 160rpx;
+  z-index: 3;
+}
+
+.astronaut-img {
+  width: 100%;
+  height: 100%;
+}
+
+/* 时间显示 */
+.time-display {
+  position: absolute;
+  bottom: 30rpx;
+  left: 40rpx;
+  z-index: 3;
+}
+
+.time-value {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.date-value {
+  display: block;
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 4rpx;
+}
+
+/* 快捷功能 */
+.quick-actions {
+  margin-bottom: 30rpx;
+}
+
+.action-card {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, #1a2a4a 0%, #0d1a30 100%);
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 16rpx;
+}
+
+.action-icon {
+  font-size: 48rpx;
+  margin-right: 24rpx;
+}
+
+.action-info {
+  flex: 1;
+}
+
+.action-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #ffffff;
+  display: block;
+}
+
+.action-desc {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 4rpx;
+}
+
+.action-arrow {
+  font-size: 40rpx;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* 设置部分 */
+.settings-section {
+  margin-top: 20rpx;
+}
+
+.section-title {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 16rpx;
+  padding-left: 8rpx;
+}
+
+.settings-list {
+  background: linear-gradient(135deg, #1a2a4a 0%, #0d1a30 100%);
+  border-radius: 20rpx;
+  overflow: hidden;
+}
+
+.setting-item {
+  display: flex;
+  align-items: center;
+  padding: 30rpx;
+  border-bottom: 1rpx solid rgba(255, 255, 255, 0.1);
+}
+
+.setting-item:last-child {
+  border-bottom: none;
+}
+
+.setting-item.danger .setting-label {
+  color: #ef4444;
+}
+
+.setting-icon {
+  font-size: 36rpx;
+  margin-right: 20rpx;
+}
+
+.setting-label {
+  flex: 1;
+  font-size: 30rpx;
+  color: #ffffff;
+}
+
+.setting-value {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.5);
+  margin-right: 12rpx;
+}
+
+.setting-arrow {
+  font-size: 32rpx;
+  color: rgba(255, 255, 255, 0.3);
+}
+

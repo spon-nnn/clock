@@ -1,0 +1,123 @@
+<!--pages/device/device.wxml - 设备详情页面（天气时钟主界面）-->
+<view class="container">
+  <!-- 顶部设备信息 -->
+  <view class="device-header">
+    <view class="device-title-row">
+      <text class="device-name">{{device.name || '太空人时钟'}}</text>
+      <view class="device-status {{device.online ? 'online' : 'offline'}}">
+        <view class="status-dot"></view>
+        <text>{{device.online ? '在线' : '离线'}}</text>
+      </view>
+    </view>
+    <view class="device-meta">
+      <text class="device-id">{{device.deviceId}}</text>
+      <text class="device-ip">IP: {{device.ip}}</text>
+    </view>
+  </view>
+
+  <!-- 天气卡片 -->
+  <view class="weather-card">
+    <view class="weather-bg"></view>
+    <view class="weather-content">
+      <view class="weather-header">
+        <view class="location">
+          <text class="city">{{weather.city || '未知城市'}}</text>
+          <text class="update-time">更新于 {{weather.updateTime || '--:--'}}</text>
+        </view>
+      </view>
+
+      <view class="weather-main">
+        <view class="temp-display">
+          <text class="temperature">{{weather.temp || '--'}}</text>
+          <text class="temp-unit">°</text>
+        </view>
+        <text class="weather-desc">{{weather.weather || '未知'}}</text>
+      </view>
+
+      <view class="weather-details">
+        <view class="detail-item">
+          <text class="detail-icon">💧</text>
+          <text class="detail-value">{{weather.humidity || '--'}}%</text>
+          <text class="detail-label">湿度</text>
+        </view>
+        <view class="detail-item">
+          <text class="detail-icon">🌬️</text>
+          <text class="detail-value">{{weather.wind || '3级'}}</text>
+          <text class="detail-label">风力</text>
+        </view>
+        <view class="detail-item">
+          <text class="detail-icon">🌡️</text>
+          <text class="detail-value">{{weather.aqi || '优'}}</text>
+          <text class="detail-label">空气</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 太空人动画 -->
+    <view class="astronaut-container">
+      <image class="astronaut-img" src="/images/astronaut.png" mode="aspectFit"></image>
+    </view>
+
+    <!-- 时间显示 -->
+    <view class="time-display">
+      <text class="time-value">{{currentTime}}</text>
+      <text class="date-value">{{currentDate}}</text>
+    </view>
+  </view>
+
+  <!-- 快捷功能入口 -->
+  <view class="quick-actions">
+    <view class="action-card" bindtap="goToSchedule">
+      <view class="action-icon">📅</view>
+      <view class="action-info">
+        <text class="action-title">日程提醒</text>
+        <text class="action-desc">{{scheduleCount}}个待办事项</text>
+      </view>
+      <text class="action-arrow">›</text>
+    </view>
+
+    <view class="action-card" bindtap="goToPomodoro">
+      <view class="action-icon">🍅</view>
+      <view class="action-info">
+        <text class="action-title">专注模式</text>
+        <text class="action-desc">今日专注 {{focusMinutes}} 分钟</text>
+      </view>
+      <text class="action-arrow">›</text>
+    </view>
+
+    <view class="action-card" bindtap="goToStats">
+      <view class="action-icon">📊</view>
+      <view class="action-info">
+        <text class="action-title">专注统计</text>
+        <text class="action-desc">查看详细数据分析</text>
+      </view>
+      <text class="action-arrow">›</text>
+    </view>
+  </view>
+
+  <!-- 设备设置 -->
+  <view class="settings-section">
+    <view class="section-title">设备设置</view>
+    <view class="settings-list">
+      <view class="setting-item" bindtap="setCityCode">
+        <text class="setting-icon">🌍</text>
+        <text class="setting-label">天气城市</text>
+        <text class="setting-value">{{weather.city || '点击设置'}}</text>
+        <text class="setting-arrow">›</text>
+      </view>
+      <view class="setting-item" bindtap="refreshData">
+        <text class="setting-icon">🔄</text>
+        <text class="setting-label">刷新数据</text>
+        <text class="setting-value"></text>
+        <text class="setting-arrow">›</text>
+      </view>
+      <view class="setting-item danger" bindtap="showUnbindConfirm">
+        <text class="setting-icon">🗑️</text>
+        <text class="setting-label">解除绑定</text>
+        <text class="setting-value"></text>
+        <text class="setting-arrow">›</text>
+      </view>
+    </view>
+  </view>
+</view>
+

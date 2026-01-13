@@ -1,0 +1,210 @@
+<!--pages/pomodoro/pomodoro.wxml - 番茄钟页面-->
+<view class="container">
+  <!-- 顶部标签页 -->
+  <view class="tabs">
+    <view class="tab {{activeTab === 'timer' ? 'active' : ''}}" bindtap="switchTab" data-tab="timer">
+      <text>番茄钟</text>
+    </view>
+    <view class="tab {{activeTab === 'schedule' ? 'active' : ''}}" bindtap="switchTab" data-tab="schedule">
+      <text>日程提醒</text>
+    </view>
+    <view class="tab {{activeTab === 'stats' ? 'active' : ''}}" bindtap="switchTab" data-tab="stats">
+      <text>专注统计</text>
+    </view>
+  </view>
+
+  <!-- 番茄钟视图 -->
+  <view class="timer-view" wx:if="{{activeTab === 'timer'}}">
+    <!-- 专注模式标题 -->
+    <view class="focus-header">
+      <text class="focus-title">专注模式</text>
+      <text class="focus-subtitle">提升你的工作效率</text>
+    </view>
+
+    <!-- 计时器圆环 -->
+    <view class="timer-ring-container">
+      <view class="timer-ring">
+        <canvas canvas-id="timerCanvas" class="timer-canvas"></canvas>
+        <view class="timer-content">
+          <text class="timer-value">{{timerDisplay}}</text>
+          <text class="timer-status">{{isFocusing ? '专注中' : '准备开始'}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 时长选择 -->
+    <view class="duration-options">
+      <view class="duration-btn {{focusDuration === 25 ? 'active' : ''}}"
+            bindtap="setDuration" data-duration="25">
+        25分钟
+      </view>
+      <view class="duration-btn {{focusDuration === 5 ? 'active' : ''}}"
+            bindtap="setDuration" data-duration="5">
+        5分钟
+      </view>
+      <view class="duration-btn {{focusDuration === 15 ? 'active' : ''}}"
+            bindtap="setDuration" data-duration="15">
+        15分钟
+      </view>
+    </view>
+
+    <!-- 控制按钮 -->
+    <view class="control-buttons">
+      <view class="control-btn reset" bindtap="resetTimer">
+        <text class="btn-icon">↻</text>
+      </view>
+      <view class="control-btn {{isFocusing ? 'pause' : 'play'}}" bindtap="toggleTimer">
+        <text class="btn-icon">{{isFocusing ? '⏸' : '▶'}}</text>
+      </view>
+      <view class="control-btn skip" bindtap="skipTimer">
+        <text class="btn-icon">⏭</text>
+      </view>
+    </view>
+
+    <!-- 当前专注任务 -->
+    <view class="current-task card">
+      <view class="card-header">
+        <text class="card-title">当前专注任务</text>
+        <view class="add-task-btn" bindtap="selectTask">
+          <text>+</text>
+        </view>
+      </view>
+
+      <view class="task-item" wx:if="{{currentTask}}">
+        <view class="task-checkbox {{currentTask.isDone ? 'checked' : ''}}"
+              bindtap="toggleTask">
+          <text wx:if="{{currentTask.isDone}}">✓</text>
+        </view>
+        <view class="task-info">
+          <text class="task-name">{{currentTask.content}}</text>
+          <text class="task-estimate">预计需要 {{currentTask.pomodoros || 1}} 个番茄钟</text>
+        </view>
+      </view>
+      <view class="no-task" wx:else bindtap="selectTask">
+        <text>点击选择或添加任务</text>
+      </view>
+
+      <view class="today-focus-summary">
+        <text class="summary-text">今日已专注</text>
+        <text class="summary-value">{{todayFocusTime}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 日程视图 (简化版) -->
+  <view class="schedule-view" wx:if="{{activeTab === 'schedule'}}">
+    <view class="schedule-header">
+      <text class="date-display">{{currentDateStr}}</text>
+      <view class="add-btn" bindtap="goToSchedule">+ 添加提醒</view>
+    </view>
+
+    <view class="schedule-list card">
+      <view class="schedule-item" wx:for="{{todaySchedules}}" wx:key="id">
+        <view class="schedule-time">{{item.startTime}}</view>
+        <view class="schedule-detail">
+          <text class="schedule-title">{{item.content}}</text>
+          <text class="schedule-desc">{{item.category === 'work' ? '工作' : item.category === 'life' ? '生活' : '学习'}}</text>
+        </view>
+        <view class="schedule-actions">
+          <text class="edit-icon" catchtap="editSchedule" data-item="{{item}}">✏️</text>
+          <text class="delete-icon" catchtap="deleteSchedule" data-id="{{item.id}}">🗑️</text>
+        </view>
+      </view>
+      <view class="empty-schedule" wx:if="{{todaySchedules.length === 0}}">
+        <text>今日暂无日程安排</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 统计视图 (简化版) -->
+  <view class="stats-view" wx:if="{{activeTab === 'stats'}}">
+    <!-- 时间统计卡片 -->
+    <view class="stats-card card">
+      <text class="card-title">专注时间统计</text>
+
+      <view class="stats-grid">
+        <view class="stat-box">
+          <text class="stat-value">{{weekFocusTime}}</text>
+          <text class="stat-label">本周专注</text>
+        </view>
+        <view class="stat-box">
+          <text class="stat-value">{{monthFocusTime}}</text>
+          <text class="stat-label">本月专注</text>
+        </view>
+        <view class="stat-box">
+          <text class="stat-value">{{totalPomodoros}}</text>
+          <text class="stat-label">完成番茄钟</text>
+        </view>
+        <view class="stat-box">
+          <text class="stat-value">{{streakDays}}</text>
+          <text class="stat-label">最长连续天数</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 任务分类统计 -->
+    <view class="category-stats card">
+      <text class="card-title">专注任务分类</text>
+
+      <view class="category-bar-item">
+        <view class="category-header">
+          <text class="category-name">工作</text>
+          <text class="category-percent">{{categoryStats.work || 0}}%</text>
+        </view>
+        <view class="progress-bar">
+          <view class="progress-fill work" style="width: {{categoryStats.work || 0}}%"></view>
+        </view>
+      </view>
+
+      <view class="category-bar-item">
+        <view class="category-header">
+          <text class="category-name">学习</text>
+          <text class="category-percent">{{categoryStats.study || 0}}%</text>
+        </view>
+        <view class="progress-bar">
+          <view class="progress-fill study" style="width: {{categoryStats.study || 0}}%"></view>
+        </view>
+      </view>
+
+      <view class="category-bar-item">
+        <view class="category-header">
+          <text class="category-name">生活</text>
+          <text class="category-percent">{{categoryStats.life || 0}}%</text>
+        </view>
+        <view class="progress-bar">
+          <view class="progress-fill life" style="width: {{categoryStats.life || 0}}%"></view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 任务选择弹窗 -->
+<view class="task-modal" wx:if="{{showTaskModal}}" bindtap="hideTaskModal">
+  <view class="task-modal-content" catchtap="">
+    <view class="modal-header">
+      <text class="modal-title">选择任务</text>
+      <view class="modal-close" bindtap="hideTaskModal">×</view>
+    </view>
+
+    <view class="task-list">
+      <view class="task-option"
+            wx:for="{{taskList}}"
+            wx:key="id"
+            bindtap="selectTaskItem"
+            data-task="{{item}}">
+        <text class="task-option-time">{{item.startTime}}</text>
+        <text class="task-option-content">{{item.content}}</text>
+      </view>
+      <view class="no-tasks" wx:if="{{taskList.length === 0}}">
+        <text>暂无待办任务</text>
+      </view>
+    </view>
+
+    <view class="quick-add">
+      <input class="quick-input" placeholder="快速添加任务" value="{{quickTaskName}}" bindinput="onQuickInput"/>
+      <button class="quick-btn" bindtap="quickAddTask">添加</button>
+    </view>
+  </view>
+</view>
+

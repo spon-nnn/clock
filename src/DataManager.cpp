@@ -1,6 +1,7 @@
 #include "DataManager.h"
 #include <TimeLib.h>
 #include <algorithm> // 引入排序算法
+#include <ESP8266WiFi.h> // 获取芯片ID和IP
 
 DataManager DB;
 
@@ -11,9 +12,163 @@ void DataManager::begin() {
         Serial.println("LittleFS Mount Failed");
         return;
     }
+    loadBindingConfig();
     loadSchedules();
     loadFocusRecords();
 }
+
+// ==================== 设备绑定管理实现 ====================
+
+void DataManager::initDeviceId() {
+    if (bindingConfig.deviceId.length() == 0) {
+        // 基于ESP8266芯片ID生成唯一设备ID
+        uint32_t chipId = ESP.getChipId();
+        bindingConfig.deviceId = "SC_" + String(chipId, HEX);
+        bindingConfig.deviceId.toUpperCase();
+        generateBindToken();
+        saveBindingConfig();
+        Serial.printf("Device ID initialized: %s\n", bindingConfig.deviceId.c_str());
+    }
+}
+
+void DataManager::generateBindToken() {
+    // 生成6位随机Token
+    String token = "";
+    const char charset[] = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // 去掉易混淆字符
+    for (int i = 0; i < 6; i++) {
+        token += charset[random(0, sizeof(charset) - 1)];
+    }
+    bindingConfig.bindToken = token;
+    saveBindingConfig();
+    Serial.printf("New bind token: %s\n", token.c_str());
+}
+
+BindingConfig& DataManager::getBindingConfig() {
+    return bindingConfig;
+}
+
+String DataManager::getQRCodeContent() {
+    // 生成二维码内容JSON
+    DynamicJsonDocument doc(256);
+    doc["type"] = "spaceclock";
+    doc["did"] = bindingConfig.deviceId;
+    doc["token"] = bindingConfig.bindToken;
+    doc["ip"] = WiFi.localIP().toString();
+
+    String output;
+    serializeJson(doc, output);
+    return output;
+}
+
+bool DataManager::verifyBindToken(String token) {
+    return token == bindingConfig.bindToken;
+}
+
+bool DataManager::bindDevice(String userId, String nickname) {
+    if (bindingConfig.isBound) {
+        Serial.println("Device already bound!");
+        return false;
+    }
+
+    bindingConfig.isBound = true;
+    bindingConfig.boundUserId = userId;
+    bindingConfig.boundNickname = nickname;
+    bindingConfig.bindTime = now();
+    saveBindingConfig();
+
+    Serial.printf("Device bound to user: %s (%s)\n", nickname.c_str(), userId.c_str());
+    return true;
+}
+
+void DataManager::unbindDevice() {
+    bindingConfig.isBound = false;
+    bindingConfig.boundUserId = "";
+    bindingConfig.boundNickname = "";
+    bindingConfig.bindTime = 0;
+    generateBindToken(); // 生成新Token
+    saveBindingConfig();
+    Serial.println("Device unbound");
+}
+
+void DataManager::factoryReset() {
+    // 清除所有数据
+    schedules.clear();
+    focusRecords.clear();
+
+    // 重置绑定状态
+    bindingConfig.isBound = false;
+    bindingConfig.boundUserId = "";
+    bindingConfig.boundNickname = "";
+    bindingConfig.bindTime = 0;
+    generateBindToken();
+
+    // 保存并删除旧文件
+    LittleFS.remove(SCHEDULE_FILE);
+    LittleFS.remove(FOCUS_FILE);
+    saveBindingConfig();
+
+    Serial.println("Factory reset complete!");
+}
+
+void DataManager::loadBindingConfig() {
+    // 先初始化设备ID
+    if (bindingConfig.deviceId.length() == 0) {
+        uint32_t chipId = ESP.getChipId();
+        bindingConfig.deviceId = "SC_" + String(chipId, HEX);
+        bindingConfig.deviceId.toUpperCase();
+    }
+
+    if (!LittleFS.exists(BINDING_FILE)) {
+        // 首次启动，生成Token
+        generateBindToken();
+        bindingConfig.isBound = false;
+        saveBindingConfig();
+        return;
+    }
+
+    File f = LittleFS.open(BINDING_FILE, "r");
+    if (!f) return;
+
+    DynamicJsonDocument doc(512);
+    DeserializationError error = deserializeJson(doc, f);
+    f.close();
+
+    if (error) {
+        Serial.println("Failed to parse binding config");
+        generateBindToken();
+        return;
+    }
+
+    bindingConfig.deviceId = doc["deviceId"].as<String>();
+    bindingConfig.bindToken = doc["bindToken"].as<String>();
+    bindingConfig.isBound = doc["isBound"].as<bool>();
+    bindingConfig.boundUserId = doc["boundUserId"].as<String>();
+    bindingConfig.boundNickname = doc["boundNickname"].as<String>();
+    bindingConfig.bindTime = doc["bindTime"].as<unsigned long>();
+
+    Serial.printf("Binding config loaded. Bound: %s\n", bindingConfig.isBound ? "Yes" : "No");
+}
+
+void DataManager::saveBindingConfig() {
+    File f = LittleFS.open(BINDING_FILE, "w");
+    if (!f) {
+        Serial.println("Failed to save binding config");
+        return;
+    }
+
+    DynamicJsonDocument doc(512);
+    doc["deviceId"] = bindingConfig.deviceId;
+    doc["bindToken"] = bindingConfig.bindToken;
+    doc["isBound"] = bindingConfig.isBound;
+    doc["boundUserId"] = bindingConfig.boundUserId;
+    doc["boundNickname"] = bindingConfig.boundNickname;
+    doc["bindTime"] = bindingConfig.bindTime;
+
+    serializeJson(doc, f);
+    f.close();
+}
+
+// ==================== 原有功能 ====================
 
 String DataManager::generateId() {
     return String(millis()) + String(random(1000, 9999));
