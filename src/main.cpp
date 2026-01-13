@@ -76,7 +76,14 @@ unsigned long focusStartTime = 0;
 
 // 天气数据
 String scrollText[6];
-time_t prevDisplay = 0; 
+// 供 /api/data 输出的小程序天气字段（避免依赖 scrollText 文案）
+String g_temp = "--";
+String g_humidity = "--";
+String g_aqi = "--";
+String g_city = "--"; // 新增城市名
+String g_weather = "--"; // 新增天气状况
+
+time_t prevDisplay = 0;
 unsigned long weaterTime = 0;
 
 // 函数声明
@@ -602,6 +609,14 @@ void setupWebserver() {
     // 0. 全局设置
     doc["settings"]["focusDuration"] = DB.getFocusDuration();
 
+    // 0.1 天气数据（供小程序使用）
+    JsonObject weather = doc.createNestedObject("weather");
+    weather["city"] = g_city;
+    weather["weather"] = g_weather;
+    weather["temp"] = g_temp;
+    weather["humidity"] = g_humidity;
+    weather["aqi"] = g_aqi;
+
     // 1. 日程列表
     JsonArray scheduleArr = doc.createNestedArray("schedule");
     for(const auto& item : DB.getSchedules()) {
@@ -667,6 +682,21 @@ void setupWebserver() {
       DB.deleteFocusRecord(id);
     }
     request->send(200, "application/json", "{\"status\":\"ok\"}");
+  });
+
+  // 处理设备重命名
+  server.on("/api/device/rename", HTTP_POST, [](AsyncWebServerRequest *request){}, NULL,
+    [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total){
+    DynamicJsonDocument doc(256);
+    deserializeJson(doc, data);
+
+    String newName = doc["name"];
+    if (newName.length() > 0) {
+        DB.renameDevice(newName); // 需要在 DataManager 中实现
+        request->send(200, "application/json", "{\"success\":true}");
+    } else {
+        request->send(400, "application/json", "{\"success\":false, \"error\":\"Empty name\"}");
+    }
   });
 
   server.begin();
@@ -1134,8 +1164,16 @@ void weaterData(String *cityDZ,String *dataSK,String *dataFC){
   if (cityDZ == NULL) return; // 防止空指针
 
   DynamicJsonDocument doc(1024);
-  deserializeJson(doc, *dataSK);
+  DeserializationError error = deserializeJson(doc, *dataSK);
+  if (error) { Serial.println("Parse SK failed"); return; }
   JsonObject sk = doc.as<JsonObject>();
+
+  // 同步一份给 API 使用（小程序读取）
+  if (sk.containsKey("temp")) g_temp = sk["temp"].as<String>();
+  if (sk.containsKey("SD")) g_humidity = sk["SD"].as<String>();
+  if (sk.containsKey("aqi")) g_aqi = sk["aqi"].as<String>();
+  if (sk.containsKey("cityname")) g_city = sk["cityname"].as<String>();
+  if (sk.containsKey("weather")) g_weather = sk["weather"].as<String>();
 
   // 温度
   clk.setColorDepth(8);
@@ -1188,19 +1226,23 @@ void weaterData(String *cityDZ,String *dataSK,String *dataFC){
   clk.pushSprite(180,130);
   clk.deleteSprite();
 
-  scrollText[0] = "实时天气 "+sk["weather"].as<String>();
-  scrollText[1] = "空气质量 "+aqiTxt;
-  scrollText[2] = "风向 "+sk["WD"].as<String>()+sk["WS"].as<String>();
-  
+  // 更新滚动文字
+  scrollText[0] = "实时天气 " + sk["weather"].as<String>();
+  scrollText[1] = "空气质量 " + aqiTxt;
+  scrollText[2] = "风向 " + sk["WD"].as<String>() + sk["WS"].as<String>();
+
+  // 解析其他数据
   deserializeJson(doc, *cityDZ);
   JsonObject dz = doc.as<JsonObject>();
-  scrollText[3] = "今日"+dz["weather"].as<String>();
-  
+  if (dz.containsKey("weather")) scrollText[3] = "今日" + dz["weather"].as<String>();
+
   deserializeJson(doc, *dataFC);
   JsonObject fc = doc.as<JsonObject>();
-  scrollText[4] = "最低温度"+fc["fd"].as<String>()+"℃";
-  scrollText[5] = "最高温度"+fc["fc"].as<String>()+"℃";
-  
+  if (fc.containsKey("fd") && fc.containsKey("fc")) {
+      scrollText[4] = "最低温度" + fc["fd"].as<String>() + "℃";
+      scrollText[5] = "最高温度" + fc["fc"].as<String>() + "℃";
+  }
+
   clk.unloadFont();
 }
 
@@ -1288,3 +1330,5 @@ void sendNTPpacket(IPAddress &address){
   Udp.write(packetBuffer, 48);
   Udp.endPacket();
 }
+
+

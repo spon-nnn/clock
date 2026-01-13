@@ -140,6 +140,11 @@ void DataManager::loadBindingConfig() {
     }
 
     bindingConfig.deviceId = doc["deviceId"].as<String>();
+    if (doc.containsKey("deviceName")) {
+        bindingConfig.deviceName = doc["deviceName"].as<String>();
+    } else {
+        bindingConfig.deviceName = "SpaceClock"; // Default name
+    }
     bindingConfig.bindToken = doc["bindToken"].as<String>();
     bindingConfig.isBound = doc["isBound"].as<bool>();
     bindingConfig.boundUserId = doc["boundUserId"].as<String>();
@@ -164,6 +169,7 @@ void DataManager::saveBindingConfig() {
 
     DynamicJsonDocument doc(512);
     doc["deviceId"] = bindingConfig.deviceId;
+    doc["deviceName"] = bindingConfig.deviceName;
     doc["bindToken"] = bindingConfig.bindToken;
     doc["isBound"] = bindingConfig.isBound;
     doc["boundUserId"] = bindingConfig.boundUserId;
@@ -506,13 +512,17 @@ bool DataManager::runSelfTest() {
 // ==================== 设置管理 ====================
 
 void DataManager::setFocusDuration(int minutes) {
-    if (minutes < 1) minutes = 1;
-    if (minutes > 120) minutes = 120; // 限制在1-120分钟
     bindingConfig.focusDuration = minutes;
-    saveBindingConfig(); // 立即保存
+    saveBindingConfig();
+}
+
+void DataManager::renameDevice(String newName) {
+    bindingConfig.deviceName = newName;
+    saveBindingConfig();
+    Serial.printf("Device renamed to: %s\n", newName.c_str());
 }
 
 int DataManager::getFocusDuration() {
-    return bindingConfig.focusDuration > 0 ? bindingConfig.focusDuration : 25;
+    return bindingConfig.focusDuration;
 }
 

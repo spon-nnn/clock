@@ -1,0 +1,164 @@
+Processing nodemcuv2 (platform: espressif8266; board: nodemcuv2; framework: arduino)
+--------------------------------------------------------------------------------
+Verbose mode can be enabled via `-v, --verbose` option
+CONFIGURATION: https://docs.platformio.org/page/boards/espressif8266/nodemcuv2.html
+PLATFORM: Espressif 8266 (4.2.1) > NodeMCU 1.0 (ESP-12E Module)
+HARDWARE: ESP8266 80MHz, 80KB RAM, 4MB Flash
+PACKAGES: 
+ - framework-arduinoespressif8266 @ 3.30102.0 (3.1.2) 
+ - tool-esptool @ 1.413.0 (4.13) 
+ - tool-esptoolpy @ 1.30000.201119 (3.0.0) 
+ - tool-mklittlefs @ 1.203.210628 (2.3) 
+ - tool-mkspiffs @ 1.200.0 (2.0) 
+ - toolchain-xtensa @ 2.100300.220621 (10.3.0)
+LDF: Library Dependency Finder -> https://bit.ly/configure-pio-ldf
+LDF Modes: Finder ~ chain, Compatibility ~ soft
+Found 45 compatible libraries
+Scanning dependencies...
+Dependency Graph
+|-- ArduinoJson @ 6.21.5
+|-- Time @ 1.6.1
+|-- ESP8266WiFi @ 1.0
+|-- ESP8266HTTPClient @ 1.2
+|-- TFT_eSPI @ 2.5.43
+|-- TJpg_Decoder @ 1.1.0
+|-- OneButton @ 2.6.1
+|-- ESPAsyncWebServer-esphome @ 3.4.0
+|-- ESPAsyncTCP-esphome @ 2.0.0
+|-- QRCode @ 0.0.1
+|-- LittleFS @ 0.1.0
+|-- SPI @ 1.0
+Building in release mode
+Compiling .pio\build\nodemcuv2\src\DataManager.cpp.o
+Compiling .pio\build\nodemcuv2\src\main.cpp.o
+In file included from src\main.cpp:6:
+.pio\libdeps\nodemcuv2\TFT_eSPI/TFT_eSPI.h:973:8: warning: #warning >>>>------>> TOUCH_CS pin not defined, TFT_eSPI touch functions will not be available! [-Wcpp]
+  973 |       #warning >>>>------>> TOUCH_CS pin not defined, TFT_eSPI touch functions will not be available!
+      |        ^~~~~~~
+In file included from .pio\libdeps\nodemcuv2\TFT_eSPI/TFT_eSPI.h:979,
+                 from src\main.cpp:6:
+.pio\libdeps\nodemcuv2\TFT_eSPI/Extensions/Smooth_font.h:47:23: warning: 'SPIFFS' is deprecated: SPIFFS has been deprecated. Please consider moving to LittleFS or other filesystems. [-Wdeprecated-declarations]
+   47 |   fs::FS   &fontFS  = SPIFFS;
+      |                       ^~~~~~
+In file included from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/CertStoreBearSSL.h:26,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/WiFiClientSecureBearSSL.h:30,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/WiFiClientSecure.h:23,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/WiFiServerSecure.h:20,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/ESP8266WiFi.h:41,
+                 from src\main.cpp:3:
+C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\cores\esp8266/FS.h:286:15: note: declared here
+  286 | extern fs::FS SPIFFS __attribute__((deprecated("SPIFFS has been deprecated. Please consider moving to LittleFS or other filesystems.")));
+      |               ^~~~~~
+In file included from src\main.cpp:8:
+.pio\libdeps\nodemcuv2\TJpg_Decoder\src/TJpg_Decoder.h:91:80: warning: 'SPIFFS' is deprecated: SPIFFS has been deprecated. Please consider moving to LittleFS or other filesystems. [-Wdeprecated-declarations]
+   91 |   JRESULT drawFsJpg (int32_t x, int32_t y, const char *pFilename, fs::FS &fs = SPIFFS);
+      |                                                                                ^~~~~~
+In file included from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/CertStoreBearSSL.h:26,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/WiFiClientSecureBearSSL.h:30,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/WiFiClientSecure.h:23,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/WiFiServerSecure.h:20,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/ESP8266WiFi.h:41,
+                 from src\main.cpp:3:
+C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\cores\esp8266/FS.h:286:15: note: declared here
+  286 | extern fs::FS SPIFFS __attribute__((deprecated("SPIFFS has been deprecated. Please consider moving to LittleFS or other filesystems.")));
+      |               ^~~~~~
+In file included from src\main.cpp:8:
+.pio\libdeps\nodemcuv2\TJpg_Decoder\src/TJpg_Decoder.h:92:82: warning: 'SPIFFS' is deprecated: SPIFFS has been deprecated. Please consider moving to LittleFS or other filesystems. [-Wdeprecated-declarations]
+   92 |   JRESULT drawFsJpg (int32_t x, int32_t y, const String& pFilename, fs::FS &fs = SPIFFS);
+      |                                                                                  ^~~~~~
+In file included from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/CertStoreBearSSL.h:26,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/WiFiClientSecureBearSSL.h:30,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/WiFiClientSecure.h:23,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/WiFiServerSecure.h:20,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/ESP8266WiFi.h:41,
+                 from src\main.cpp:3:
+C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\cores\esp8266/FS.h:286:15: note: declared here
+  286 | extern fs::FS SPIFFS __attribute__((deprecated("SPIFFS has been deprecated. Please consider moving to LittleFS or other filesystems.")));
+      |               ^~~~~~
+In file included from src\main.cpp:8:
+.pio\libdeps\nodemcuv2\TJpg_Decoder\src/TJpg_Decoder.h:95:86: warning: 'SPIFFS' is deprecated: SPIFFS has been deprecated. Please consider moving to LittleFS or other filesystems. [-Wdeprecated-declarations]
+   95 |   JRESULT getFsJpgSize(uint16_t *w, uint16_t *h, const char *pFilename, fs::FS &fs = SPIFFS);
+      |                                                                                      ^~~~~~
+In file included from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/CertStoreBearSSL.h:26,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/WiFiClientSecureBearSSL.h:30,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/WiFiClientSecure.h:23,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/WiFiServerSecure.h:20,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/ESP8266WiFi.h:41,
+                 from src\main.cpp:3:
+C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\cores\esp8266/FS.h:286:15: note: declared here
+  286 | extern fs::FS SPIFFS __attribute__((deprecated("SPIFFS has been deprecated. Please consider moving to LittleFS or other filesystems.")));
+      |               ^~~~~~
+In file included from src\main.cpp:8:
+.pio\libdeps\nodemcuv2\TJpg_Decoder\src/TJpg_Decoder.h:96:88: warning: 'SPIFFS' is deprecated: SPIFFS has been deprecated. Please consider moving to LittleFS or other filesystems. [-Wdeprecated-declarations]
+   96 |   JRESULT getFsJpgSize(uint16_t *w, uint16_t *h, const String& pFilename, fs::FS &fs = SPIFFS);
+      |                                                                                        ^~~~~~
+In file included from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/CertStoreBearSSL.h:26,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/WiFiClientSecureBearSSL.h:30,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/WiFiClientSecure.h:23,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/WiFiServerSecure.h:20,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/ESP8266WiFi.h:41,
+                 from src\main.cpp:3:
+C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\cores\esp8266/FS.h:286:15: note: declared here
+  286 | extern fs::FS SPIFFS __attribute__((deprecated("SPIFFS has been deprecated. Please consider moving to LittleFS or other filesystems.")));
+      |               ^~~~~~
+Linking .pio\build\nodemcuv2\firmware.elf
+Retrieving maximum program size .pio\build\nodemcuv2\firmware.elf
+Checking size .pio\build\nodemcuv2\firmware.elf
+Advanced Memory Usage is available via "PlatformIO Home > Project Inspect"
+RAM:   [=====     ]  49.1% (used 40204 bytes from 81920 bytes)
+Flash: [========  ]  78.4% (used 819313 bytes from 1044464 bytes)
+Building .pio\build\nodemcuv2\firmware.bin
+Creating BIN file ".pio\build\nodemcuv2\firmware.bin" using "C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\bootloaders\eboot\eboot.elf" and ".pio\build\nodemcuv2\firmware.elf"
+Configuring upload protocol...
+AVAILABLE: espota, esptool
+CURRENT: upload_protocol = esptool
+Looking for upload port...
+Auto-detected: COM5
+Uploading .pio\build\nodemcuv2\firmware.bin
+esptool.py v3.0
+Serial port COM5
+Connecting....
+Chip is ESP8266EX
+Features: WiFi
+Crystal is 26MHz
+MAC: bc:dd:c2:e5:c5:9d
+Uploading stub...
+Running stub...
+Stub running...
+Configuring flash size...
+Compressed 823472 bytes to 474793...
+Writing at 0x00000000... (3 %)
+Writing at 0x00004000... (6 %)
+Writing at 0x00008000... (10 %)
+Writing at 0x0000c000... (13 %)
+Writing at 0x00010000... (17 %)
+Writing at 0x00014000... (20 %)
+Writing at 0x00018000... (24 %)
+Writing at 0x0001c000... (27 %)
+Writing at 0x00020000... (31 %)
+Writing at 0x00024000... (34 %)
+Writing at 0x00028000... (37 %)
+Writing at 0x0002c000... (41 %)
+Writing at 0x00030000... (44 %)
+Writing at 0x00034000... (48 %)
+Writing at 0x00038000... (51 %)
+Writing at 0x0003c000... (55 %)
+Writing at 0x00040000... (58 %)
+Writing at 0x00044000... (62 %)
+Writing at 0x00048000... (65 %)
+Writing at 0x0004c000... (68 %)
+Writing at 0x00050000... (72 %)
+Writing at 0x00054000... (75 %)
+Writing at 0x00058000... (79 %)
+Writing at 0x0005c000... (82 %)
+Writing at 0x00060000... (86 %)
+Writing at 0x00064000... (89 %)
+Writing at 0x00068000... (93 %)
+Writing at 0x0006c000... (96 %)
+Writing at 0x00070000... (100 %)
+Wrote 823472 bytes (474793 compressed) at 0x00000000 in 42.1 seconds (effective 156.6 kbit/s)...
+Hash of data verified.
+
+Leaving...
+Hard resetting via RTS pin...
+========================= [SUCCESS] Took 66.79 seconds =========================

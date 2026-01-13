@@ -1,0 +1,35 @@
+Processing nodemcuv2 (platform: espressif8266; board: nodemcuv2; framework: arduino)
+--------------------------------------------------------------------------------
+Verbose mode can be enabled via `-v, --verbose` option
+CONFIGURATION: https://docs.platformio.org/page/boards/espressif8266/nodemcuv2.html
+PLATFORM: Espressif 8266 (4.2.1) > NodeMCU 1.0 (ESP-12E Module)
+HARDWARE: ESP8266 80MHz, 80KB RAM, 4MB Flash
+PACKAGES: 
+ - framework-arduinoespressif8266 @ 3.30102.0 (3.1.2) 
+ - tool-esptool @ 1.413.0 (4.13) 
+ - tool-esptoolpy @ 1.30000.201119 (3.0.0) 
+ - toolchain-xtensa @ 2.100300.220621 (10.3.0)
+LDF: Library Dependency Finder -> https://bit.ly/configure-pio-ldf
+LDF Modes: Finder ~ chain, Compatibility ~ soft
+Found 45 compatible libraries
+Scanning dependencies...
+Dependency Graph
+|-- ArduinoJson @ 6.21.5
+|-- Time @ 1.6.1
+|-- ESP8266WiFi @ 1.0
+|-- ESP8266HTTPClient @ 1.2
+|-- TFT_eSPI @ 2.5.43
+|-- TJpg_Decoder @ 1.1.0
+|-- OneButton @ 2.6.1
+|-- ESPAsyncWebServer-esphome @ 3.4.0
+|-- ESPAsyncTCP-esphome @ 2.0.0
+|-- QRCode @ 0.0.1
+|-- LittleFS @ 0.1.0
+|-- SPI @ 1.0
+Building in release mode
+Retrieving maximum program size .pio\build\nodemcuv2\firmware.elf
+Checking size .pio\build\nodemcuv2\firmware.elf
+Advanced Memory Usage is available via "PlatformIO Home > Project Inspect"
+RAM:   [=====     ]  49.1% (used 40204 bytes from 81920 bytes)
+Flash: [========  ]  78.4% (used 819313 bytes from 1044464 bytes)
+========================= [SUCCESS] Took 9.69 seconds =========================

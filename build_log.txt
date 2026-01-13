@@ -1,0 +1,178 @@
+Processing nodemcuv2 (platform: espressif8266; board: nodemcuv2; framework: arduino)
+--------------------------------------------------------------------------------
+Verbose mode can be enabled via `-v, --verbose` option
+CONFIGURATION: https://docs.platformio.org/page/boards/espressif8266/nodemcuv2.html
+PLATFORM: Espressif 8266 (4.2.1) > NodeMCU 1.0 (ESP-12E Module)
+HARDWARE: ESP8266 80MHz, 80KB RAM, 4MB Flash
+PACKAGES: 
+ - framework-arduinoespressif8266 @ 3.30102.0 (3.1.2) 
+ - tool-esptool @ 1.413.0 (4.13) 
+ - tool-esptoolpy @ 1.30000.201119 (3.0.0) 
+ - toolchain-xtensa @ 2.100300.220621 (10.3.0)
+LDF: Library Dependency Finder -> https://bit.ly/configure-pio-ldf
+LDF Modes: Finder ~ chain, Compatibility ~ soft
+Found 45 compatible libraries
+Scanning dependencies...
+Dependency Graph
+|-- ArduinoJson @ 6.21.5
+|-- Time @ 1.6.1
+|-- ESP8266WiFi @ 1.0
+|-- ESP8266HTTPClient @ 1.2
+|-- TFT_eSPI @ 2.5.43
+|-- TJpg_Decoder @ 1.1.0
+|-- OneButton @ 2.6.1
+|-- ESPAsyncWebServer-esphome @ 3.4.0
+|-- ESPAsyncTCP-esphome @ 2.0.0
+|-- QRCode @ 0.0.1
+|-- LittleFS @ 0.1.0
+|-- SPI @ 1.0
+Building in release mode
+Compiling .pio\build\nodemcuv2\src\DataManager.cpp.o
+Compiling .pio\build\nodemcuv2\src\main.cpp.o
+In file included from src\main.cpp:6:
+.pio\libdeps\nodemcuv2\TFT_eSPI/TFT_eSPI.h:973:8: warning: #warning >>>>------>> TOUCH_CS pin not defined, TFT_eSPI touch functions will not be available! [-Wcpp]
+  973 |       #warning >>>>------>> TOUCH_CS pin not defined, TFT_eSPI touch functions will not be available!
+      |        ^~~~~~~
+src\DataManager.cpp:22:6: error: no declaration matches 'void DataManager::initDeviceId()'
+   22 | void DataManager::initDeviceId() {
+      |      ^~~~~~~~~~~
+src\DataManager.cpp:22:6: note: no functions named 'void DataManager::initDeviceId()'
+In file included from src\DataManager.cpp:1:
+src\DataManager.h:95:7: note: 'class DataManager' defined here
+   95 | class DataManager {
+      |       ^~~~~~~~~~~
+src\DataManager.cpp:34:6: error: no declaration matches 'void DataManager::generateBindToken()'
+   34 | void DataManager::generateBindToken() {
+      |      ^~~~~~~~~~~
+src\DataManager.cpp:34:6: note: no functions named 'void DataManager::generateBindToken()'
+In file included from src\DataManager.cpp:1:
+src\DataManager.h:95:7: note: 'class DataManager' defined here
+   95 | class DataManager {
+      |       ^~~~~~~~~~~
+src\DataManager.cpp:67:6: error: no declaration matches 'bool DataManager::bindDevice(String, String)'
+   67 | bool DataManager::bindDevice(String userId, String nickname) {
+      |      ^~~~~~~~~~~
+src\DataManager.cpp:67:6: note: no functions named 'bool DataManager::bindDevice(String, String)'
+In file included from src\DataManager.cpp:1:
+src\DataManager.h:95:7: note: 'class DataManager' defined here
+   95 | class DataManager {
+      |       ^~~~~~~~~~~
+src\DataManager.cpp:83:6: error: no declaration matches 'void DataManager::unbindDevice()'
+   83 | void DataManager::unbindDevice() {
+      |      ^~~~~~~~~~~
+src\DataManager.cpp:83:6: note: no functions named 'void DataManager::unbindDevice()'
+In file included from src\DataManager.cpp:1:
+src\DataManager.h:95:7: note: 'class DataManager' defined here
+   95 | class DataManager {
+      |       ^~~~~~~~~~~
+src\DataManager.cpp:93:6: error: no declaration matches 'void DataManager::factoryReset()'
+   93 | void DataManager::factoryReset() {
+      |      ^~~~~~~~~~~
+src\DataManager.cpp:93:6: note: no functions named 'void DataManager::factoryReset()'
+In file included from src\DataManager.cpp:1:
+src\DataManager.h:95:7: note: 'class DataManager' defined here
+   95 | class DataManager {
+      |       ^~~~~~~~~~~
+src\DataManager.cpp: In member function 'void DataManager::loadBindingConfig()':
+src\DataManager.cpp:123:9: error: 'generateBindToken' was not declared in this scope; did you mean 'verifyBindToken'?
+  123 |         generateBindToken();
+      |         ^~~~~~~~~~~~~~~~~
+      |         verifyBindToken
+src\DataManager.cpp:138:9: error: 'generateBindToken' was not declared in this scope; did you mean 'verifyBindToken'?
+  138 |         generateBindToken();
+      |         ^~~~~~~~~~~~~~~~~
+      |         verifyBindToken
+*** [.pio\build\nodemcuv2\src\DataManager.cpp.o] Error 1
+In file included from .pio\libdeps\nodemcuv2\TFT_eSPI/TFT_eSPI.h:979,
+                 from src\main.cpp:6:
+.pio\libdeps\nodemcuv2\TFT_eSPI/Extensions/Smooth_font.h:47:23: warning: 'SPIFFS' is deprecated: SPIFFS has been deprecated. Please consider moving to LittleFS or other filesystems. [-Wdeprecated-declarations]
+   47 |   fs::FS   &fontFS  = SPIFFS;
+      |                       ^~~~~~
+In file included from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/CertStoreBearSSL.h:26,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/WiFiClientSecureBearSSL.h:30,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/WiFiClientSecure.h:23,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/WiFiServerSecure.h:20,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/ESP8266WiFi.h:41,
+                 from src\main.cpp:3:
+C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\cores\esp8266/FS.h:286:15: note: declared here
+  286 | extern fs::FS SPIFFS __attribute__((deprecated("SPIFFS has been deprecated. Please consider moving to LittleFS or other filesystems.")));
+      |               ^~~~~~
+In file included from src\main.cpp:8:
+.pio\libdeps\nodemcuv2\TJpg_Decoder\src/TJpg_Decoder.h:91:80: warning: 'SPIFFS' is deprecated: SPIFFS has been deprecated. Please consider moving to LittleFS or other filesystems. [-Wdeprecated-declarations]
+   91 |   JRESULT drawFsJpg (int32_t x, int32_t y, const char *pFilename, fs::FS &fs = SPIFFS);
+      |                                                                                ^~~~~~
+In file included from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/CertStoreBearSSL.h:26,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/WiFiClientSecureBearSSL.h:30,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/WiFiClientSecure.h:23,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/WiFiServerSecure.h:20,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/ESP8266WiFi.h:41,
+                 from src\main.cpp:3:
+C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\cores\esp8266/FS.h:286:15: note: declared here
+  286 | extern fs::FS SPIFFS __attribute__((deprecated("SPIFFS has been deprecated. Please consider moving to LittleFS or other filesystems.")));
+      |               ^~~~~~
+In file included from src\main.cpp:8:
+.pio\libdeps\nodemcuv2\TJpg_Decoder\src/TJpg_Decoder.h:92:82: warning: 'SPIFFS' is deprecated: SPIFFS has been deprecated. Please consider moving to LittleFS or other filesystems. [-Wdeprecated-declarations]
+   92 |   JRESULT drawFsJpg (int32_t x, int32_t y, const String& pFilename, fs::FS &fs = SPIFFS);
+      |                                                                                  ^~~~~~
+In file included from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/CertStoreBearSSL.h:26,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/WiFiClientSecureBearSSL.h:30,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/WiFiClientSecure.h:23,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/WiFiServerSecure.h:20,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/ESP8266WiFi.h:41,
+                 from src\main.cpp:3:
+C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\cores\esp8266/FS.h:286:15: note: declared here
+  286 | extern fs::FS SPIFFS __attribute__((deprecated("SPIFFS has been deprecated. Please consider moving to LittleFS or other filesystems.")));
+      |               ^~~~~~
+In file included from src\main.cpp:8:
+.pio\libdeps\nodemcuv2\TJpg_Decoder\src/TJpg_Decoder.h:95:86: warning: 'SPIFFS' is deprecated: SPIFFS has been deprecated. Please consider moving to LittleFS or other filesystems. [-Wdeprecated-declarations]
+   95 |   JRESULT getFsJpgSize(uint16_t *w, uint16_t *h, const char *pFilename, fs::FS &fs = SPIFFS);
+      |                                                                                      ^~~~~~
+In file included from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/CertStoreBearSSL.h:26,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/WiFiClientSecureBearSSL.h:30,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/WiFiClientSecure.h:23,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/WiFiServerSecure.h:20,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/ESP8266WiFi.h:41,
+                 from src\main.cpp:3:
+C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\cores\esp8266/FS.h:286:15: note: declared here
+  286 | extern fs::FS SPIFFS __attribute__((deprecated("SPIFFS has been deprecated. Please consider moving to LittleFS or other filesystems.")));
+      |               ^~~~~~
+In file included from src\main.cpp:8:
+.pio\libdeps\nodemcuv2\TJpg_Decoder\src/TJpg_Decoder.h:96:88: warning: 'SPIFFS' is deprecated: SPIFFS has been deprecated. Please consider moving to LittleFS or other filesystems. [-Wdeprecated-declarations]
+   96 |   JRESULT getFsJpgSize(uint16_t *w, uint16_t *h, const String& pFilename, fs::FS &fs = SPIFFS);
+      |                                                                                        ^~~~~~
+In file included from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/CertStoreBearSSL.h:26,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/WiFiClientSecureBearSSL.h:30,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/WiFiClientSecure.h:23,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/WiFiServerSecure.h:20,
+                 from C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src/ESP8266WiFi.h:41,
+                 from src\main.cpp:3:
+C:\Users\Lenovo\.platformio\packages\framework-arduinoespressif8266\cores\esp8266/FS.h:286:15: note: declared here
+  286 | extern fs::FS SPIFFS __attribute__((deprecated("SPIFFS has been deprecated. Please consider moving to LittleFS or other filesystems.")));
+      |               ^~~~~~
+src\main.cpp: In lambda function:
+src\main.cpp:495:12: error: 'class DataManager' has no member named 'bindDevice'
+  495 |         DB.bindDevice(userId, nickname);
+      |            ^~~~~~~~~~
+src\main.cpp: In lambda function:
+src\main.cpp:520:12: error: 'class DataManager' has no member named 'unbindDevice'
+  520 |         DB.unbindDevice();
+      |            ^~~~~~~~~~~~
+src\main.cpp: In function 'void onBtnClick()':
+src\main.cpp:917:8: error: 'class DataManager' has no member named 'generateBindToken'; did you mean 'verifyBindToken'?
+  917 |     DB.generateBindToken();
+      |        ^~~~~~~~~~~~~~~~~
+      |        verifyBindToken
+src\main.cpp: In function 'void setup()':
+src\main.cpp:1004:6: error: 'class DataManager' has no member named 'initDeviceId'
+ 1004 |   DB.initDeviceId(); // 确保设备ID已初始化
+      |      ^~~~~~~~~~~~
+src\main.cpp:1048:10: error: 'class DataManager' has no member named 'generateBindToken'; did you mean 'verifyBindToken'?
+ 1048 |       DB.generateBindToken();
+      |          ^~~~~~~~~~~~~~~~~
+      |          verifyBindToken
+src\main.cpp: In function 'void onBtnDuringLongPress()':
+src\main.cpp:1108:16: error: 'class DataManager' has no member named 'factoryReset'
+ 1108 |             DB.factoryReset();
+      |                ^~~~~~~~~~~~
+*** [.pio\build\nodemcuv2\src\main.cpp.o] Error 1
+========================= [FAILED] Took 11.97 seconds =========================

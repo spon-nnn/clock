@@ -11,6 +11,7 @@
 // 0. 设备绑定配置
 struct BindingConfig {
     String deviceId;      // 设备唯一ID (基于芯片ID)
+    String deviceName;    // 设备名称
     String bindToken;     // 绑定Token (随机生成，用于验证)
     bool isBound;         // 是否已绑定
     String boundUserId;   // 绑定的微信用户OpenID
@@ -97,14 +98,19 @@ public:
     void begin();
 
     // === 设备绑定管理 ===
+    bool isDeviceBound() { return bindingConfig.isBound; }
     BindingConfig& getBindingConfig();
-    void initDeviceId();           // 初始化设备ID (基于芯片ID)
-    void generateBindToken();      // 生成新的绑定Token
-    bool bindDevice(String userId, String nickname); // 绑定设备到用户
-    void unbindDevice();           // 解绑设备
-    void factoryReset();           // 恢复出厂设置
+
+    void renameDevice(String newName); // 设备重命名
+
     String getQRCodeContent();     // 获取二维码内容JSON
     bool verifyBindToken(String token); // 验证绑定Token
+
+    void initDeviceId();
+    void generateBindToken();
+    bool bindDevice(String userId, String nickname);
+    void unbindDevice();
+    void factoryReset();
 
     // 日程操作
     void addSchedule(ScheduleItem item);
